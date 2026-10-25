@@ -1,6 +1,6 @@
 name=Splitscreen Fixes
 id=SplitscreenFixes
-description=Fixes for splitscreen players on a multiplayer server: stuck item transfers and vehicles that don't move for other players.
+description=Splitscreen fixes: stuck item transfers and cars on a server, firearm aiming, own world map and crafting window per player, mechanics window and moodles kept on the player's screen.
 author=fullzero
 category=misc
 versionMin=42.21.0
