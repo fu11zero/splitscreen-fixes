@@ -90,6 +90,17 @@ multiplayer server (Host from the main menu or a dedicated server).
     Small map popups (`ISMapSymbolDialog`, `ISTextBoxMap`, map options) still clamp to the
     whole window.
 
+- **Moodles of the upper players don't run onto the lower players' screens**
+  (`Patches.MoodleIconSize`, `MoodleSize`; client side).
+  - Vanilla: `MoodlesUI` stacks moodles in one column (slot i at `y + i * (10 + size)`) with the
+    icon size taken from the options only (`getTextureSizeForOption`). With 3-4 players the
+    screen is a 2x2 grid, and player 0's (1's) column runs past the middle onto player 2's (3's)
+    moodles.
+  - Patch: `getTextureSizeForOption` returns the largest vanilla size (128..32) not above the
+    option whose column still ends at the bottom of the player's screen; the spacing and slot
+    positions follow it. The column's x is set by `UIManager.resize` for the option size, so
+    smaller icons sit a little left of the screen edge.
+
 - **The host server runs ZombieBuddy too** (`CoopServerAgent`; client side).
   - Vanilla: `CoopMaster.launchServer` starts the host server as a separate JVM with a fixed
     command line, without the client's `-javaagent`, so server-side Java mods never load.

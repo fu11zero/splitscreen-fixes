@@ -9,6 +9,7 @@ import zombie.network.GameClient;
 import zombie.network.PacketTypes.PacketType;
 import zombie.network.PacketsCache;
 import zombie.network.packets.INetworkPacket;
+import zombie.ui.MoodlesUI;
 import zombie.vehicles.BaseVehicle;
 
 public final class Patches {
@@ -65,6 +66,16 @@ public final class Patches {
         @Patch.OnExit
         public static void exit(@Patch.This CombatManager manager) {
             CombatReticle.afterUpdate(manager);
+        }
+    }
+
+    // Client: shrink moodle icons so player 0's column doesn't run onto player 2's screen (see MoodleSize).
+    @Patch(className = "zombie.ui.MoodlesUI", methodName = "getTextureSizeForOption")
+    public static class MoodleIconSize {
+        @Patch.OnExit
+        public static void exit(@Patch.This MoodlesUI ui,
+                                @Patch.Return(readOnly = false) int size) {
+            size = MoodleSize.fit(ui, size);
         }
     }
 
