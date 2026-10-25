@@ -155,6 +155,16 @@ multiplayer server (Host from the main menu or a dedicated server).
     without a watch has no clock, as in single player. Leftovers: `ISButtonPrompt` still adds a
     side margin for the clock, `ISCharacterScreen` "survived for" looks at player 0's clock.
 
+- **Search mode (foraging) shows the visible circle for every splitscreen player**
+  (`Patches.SearchModeOffset`, `SearchModeOverlay`; client side).
+  - Vanilla: the overlay is drawn by `media/shaders/screen.frag` when `MultiTextureFBO2.render`
+    puts each player's view on the screen with the weather shader. The circle is found from
+    `gl_FragCoord` minus `SearchMode.zw`, which `WeatherShader.startMainThread` sets to
+    `IsoCamera.getOffscreenLeft/Top(player)`. Only player 0 (offset 0, 0) gets the circle around
+    the character; for the others it lands off their screen and the whole screen goes dark.
+    The drunk and glasses blur circles use the same offsets.
+  - Patch (splitscreen): after `startMainThread` the offset is 0, 0 for every player.
+
 - **The host server runs ZombieBuddy too** (`CoopServerAgent`; client side).
   - Vanilla: `CoopMaster.launchServer` starts the host server as a separate JVM with a fixed
     command line, without the client's `-javaagent`, so server-side Java mods never load.

@@ -4,6 +4,7 @@ import me.zed_0xff.zombie_buddy.Patch;
 import zombie.CombatManager;
 import zombie.characters.IsoPlayer;
 import zombie.core.network.ByteBufferReader;
+import zombie.core.textures.TextureDraw;
 import zombie.core.raknet.UdpConnection;
 import zombie.network.GameClient;
 import zombie.network.PacketTypes.PacketType;
@@ -110,6 +111,15 @@ public final class Patches {
             if (handled == null) {
                 handled = Boolean.TRUE;
             }
+        }
+    }
+
+    // Client: search mode circle for every splitscreen player (see SearchModeOverlay).
+    @Patch(className = "zombie.iso.weather.WeatherShader", methodName = "startMainThread")
+    public static class SearchModeOffset {
+        @Patch.OnExit
+        public static void exit(@Patch.Argument(0) TextureDraw texd, @Patch.Argument(1) int playerIndex) {
+            SearchModeOverlay.afterStartMainThread(texd, playerIndex);
         }
     }
 
