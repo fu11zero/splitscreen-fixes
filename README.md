@@ -87,6 +87,8 @@ multiplayer server (Host from the main menu or a dedicated server).
     is blocked; in splitscreen the world keeps drawing and pause-on-map is off; death, context
     menu (`ISWorldObjectContextMenu.createMenu`) and `ISEntityUI.CanOpenWindowFor` look at the
     player's own map. `ISWorldMap_instance` stays player 0's map for vanilla code and mods.
+    Flier and stash map icons (`renderPrintMedia`/`renderStashMaps`, plain textures drawn from
+    `prerender`) are clipped to the map with a stencil, so they don't spill onto other screens.
     Small map popups (`ISMapSymbolDialog`, `ISTextBoxMap`, map options) still clamp to the
     whole window.
 

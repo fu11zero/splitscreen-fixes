@@ -185,6 +185,24 @@ function ISWorldMap:render()
     self:updateJoypad()
 end
 
+-- Flier and stash map icons (ISWorldMap:renderPrintMedia/renderStashMaps, from prerender) are
+-- plain textures, not clipped by the map renderer; with a full-window map the window edge hid
+-- them. Clip them to the player's map so they don't spill onto the neighbouring screens.
+local function clipToMap(vanilla)
+    return function(self, ...)
+        if not (SplitscreenUI.isSplitscreen() and ISWorldMap.instances[self.playerNum] == self) then
+            return vanilla(self, ...)
+        end
+        self:setStencilRect(0, 0, self.width, self.height)
+        local ok, err = pcall(vanilla, self, ...)
+        self:clearStencilRect()
+        if not ok then error(err, 0) end
+    end
+end
+
+ISWorldMap.renderPrintMedia = clipToMap(ISWorldMap.renderPrintMedia)
+ISWorldMap.renderStashMaps = clipToMap(ISWorldMap.renderStashMaps)
+
 local vanillaClose = ISWorldMap.close
 function ISWorldMap:close()
     vanillaClose(self)
