@@ -73,6 +73,23 @@ multiplayer server (Host from the main menu or a dedicated server).
     build panels are kept per player (`ISBuildWindow.instances`) and `ISBuildWindow.instance` is
     switched to the acting player's panel before vanilla uses it.
 
+- **Every splitscreen player has their own world map** (`lua/client/SplitscreenFixes/Map.lua`;
+  client side).
+  - Vanilla (`ISUI/Maps/ISWorldMap.lua`): one global map, `ISWorldMap_instance`, reassigned to
+    whoever opened it last and sized to the whole window (`ShowWorldMap` and every
+    `ISWorldMap:render`). `ShowWorldMap` blocks movement of every local player and `close`
+    unblocks them all, so the others stand still while one reads the map. `render` calls
+    `getWorld():setDrawWorld(false)`, a global flag (`IsoWorld.renderInternal`) that stops
+    drawing the world on all screens. The map can't be opened while any splitscreen player is
+    dead, `OnPlayerDeath` closes it whoever died, and the world context menu / entity windows
+    are blocked for everybody while it is open.
+  - Patch: `ISWorldMap.instances[playerNum]`, each sized to its player's screen; only the owner
+    is blocked; in splitscreen the world keeps drawing and pause-on-map is off; death, context
+    menu (`ISWorldObjectContextMenu.createMenu`) and `ISEntityUI.CanOpenWindowFor` look at the
+    player's own map. `ISWorldMap_instance` stays player 0's map for vanilla code and mods.
+    Small map popups (`ISMapSymbolDialog`, `ISTextBoxMap`, map options) still clamp to the
+    whole window.
+
 - **The host server runs ZombieBuddy too** (`CoopServerAgent`; client side).
   - Vanilla: `CoopMaster.launchServer` starts the host server as a separate JVM with a fixed
     command line, without the client's `-javaagent`, so server-side Java mods never load.
