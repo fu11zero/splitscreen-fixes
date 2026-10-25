@@ -105,6 +105,16 @@ multiplayer server (Host from the main menu or a dedicated server).
     buttons run with `getPlayer()` returning that player, and in splitscreen the size cap and
     position use the player's screen. All wrapped, so GamepadTweaks' flier wrappers still run.
 
+- **Context menus stay on their player's screen** (`lua/client/SplitscreenFixes/ContextMenu.lua`;
+  client side).
+  - Vanilla: `ISContextMenu:calcHeight` starts scrolling only when the options don't fit the
+    whole window, and `keepOnScreen` (`ISUIElement:setX/setY`) clamps to the whole window, so a
+    long menu (a pot with many recipes) runs over the player below. `calcWidth` opens a submenu
+    on the left only at the window's right edge.
+  - Patch (splitscreen): the height limit and the clamping use the player's screen; a submenu
+    that would cross its right edge opens left of its parent; a slide-in whose goal was clamped
+    away ends after its 100 ms.
+
 - **Confirmation dialogs on their player's screen, answerable with a gamepad**
   (`lua/client/SplitscreenFixes/Dialogs.lua`; client side).
   - Vanilla: `ISModalDialog/ISModalRichText/ISTextBox:new` centre on the player's screen only
