@@ -9,6 +9,7 @@ import zombie.network.GameClient;
 import zombie.network.PacketTypes.PacketType;
 import zombie.network.PacketsCache;
 import zombie.network.packets.INetworkPacket;
+import zombie.ui.Clock;
 import zombie.ui.MoodlesUI;
 import zombie.vehicles.BaseVehicle;
 
@@ -76,6 +77,39 @@ public final class Patches {
         public static void exit(@Patch.This MoodlesUI ui,
                                 @Patch.Return(readOnly = false) int size) {
             size = MoodleSize.fit(ui, size);
+        }
+    }
+
+    // Client: one clock per splitscreen player (see PlayerClocks).
+    @Patch(className = "zombie.ui.Clock", methodName = "resize")
+    public static class ClockResize {
+        @Patch.OnExit
+        public static void exit(@Patch.This Clock clock) {
+            PlayerClocks.afterClockResize(clock);
+        }
+    }
+
+    @Patch(className = "zombie.ui.UIManager", methodName = "resize")
+    public static class ClockLayout {
+        @Patch.OnExit
+        public static void exit() {
+            PlayerClocks.afterUiResize();
+        }
+    }
+
+    @Patch(className = "zombie.ui.Clock", methodName = "onMouseDown")
+    public static class ClockClick {
+        @Patch.OnEnter(skipOn = true)
+        public static boolean enter(@Patch.This Clock clock) {
+            return PlayerClocks.onMouseDown(clock);
+        }
+
+        // A skipped method returns null; the caller unboxes the Boolean.
+        @Patch.OnExit
+        public static void exit(@Patch.Return(readOnly = false) Boolean handled) {
+            if (handled == null) {
+                handled = Boolean.TRUE;
+            }
         }
     }
 

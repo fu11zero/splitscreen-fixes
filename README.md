@@ -140,6 +140,21 @@ multiplayer server (Host from the main menu or a dedicated server).
     positions follow it. The column's x is set by `UIManager.resize` for the option size, so
     smaller icons sit a little left of the screen edge.
 
+- **Every splitscreen player has their own clock** (`Patches.ClockResize/ClockLayout/ClockClick`,
+  `PlayerClocks`; client side).
+  - Vanilla: one `Clock` (`UIManager.clock`). `Clock.resize` shows it when any local player has a
+    watch and takes `clockPlayer` (whose air temperature the digital display shows) from the
+    first such player; `UIManager.resize` puts it at the bottom centre of the window in
+    splitscreen. Everybody sees player 0's (or the first watch owner's) temperature, and
+    `Clock.onMouseDown` sets/stops every local player's alarm.
+  - Patch (splitscreen): the vanilla clock is player 0's, extra `Clock` objects are added to
+    the UI for players 1-3 (`Clock.instance` restored to the vanilla one). After `Clock.resize`
+    each clock reflects only its player's watch (visible, digital, alarm, temperature); after
+    `UIManager.resize` each sits at the top-right of its player's screen, as in single player,
+    with that player's moodles below it. A click changes only that player's alarm. A player
+    without a watch has no clock, as in single player. Leftovers: `ISButtonPrompt` still adds a
+    side margin for the clock, `ISCharacterScreen` "survived for" looks at player 0's clock.
+
 - **The host server runs ZombieBuddy too** (`CoopServerAgent`; client side).
   - Vanilla: `CoopMaster.launchServer` starts the host server as a separate JVM with a fixed
     command line, without the client's `-javaagent`, so server-side Java mods never load.
