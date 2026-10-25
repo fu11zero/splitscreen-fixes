@@ -1,0 +1,27 @@
+version=1
+id=3825951396
+title=Splitscreen Fixes
+description=[h1]Splitscreen Fixes[/h1]
+description=Fixes for several splitscreen players on one multiplayer server (Host from the main menu or a dedicated server). Build 42, needs ZombieBuddy.
+description=
+description=[h2]Fixed[/h2]
+description=[list]
+description=[*][b]Stuck item transfers.[/b] When two splitscreen players move items at the same time (loot window, smoking takes the lighter out of a bag, equipping, building), one action fills the progress bar to 100% and hangs without a result. The players on one PC share a network connection, and the server parsed player 2's request over player 1's pending one. Now every splitscreen player gets their own request, the same as a player on another PC.
+description=[*][b]Car that doesn't move for the server.[/b] A splitscreen player drives, but the car stays parked for everyone else, the road is blocked at the chunk edge, and on exit the car snaps back. The game only sent the car position when the driver was the "current" local player. Now any local player holding the car sends it.
+description=[/list]
+description=
+description=[h2]Requirements[/h2]
+description=[list]
+description=[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]ZombieBuddy[/url] 2.3.4+ installed as a Java agent (see its install guide).
+description=[*]Enable Splitscreen Fixes in the main menu Mods list [b]and[/b] in the host server settings (Host - Manage settings - Mods).
+description=[/list]
+description=
+description=[h2]Host from the main menu[/h2]
+description=The game starts the host server as a separate process without ZombieBuddy. This mod adds ZombieBuddy to that process, with policy=deny-new: the server loads only Java mods you already approved in the game. When ZombieBuddy asks about Splitscreen Fixes, allow it and save the decision.
+description=
+description=[h2]Dedicated server[/h2]
+description=Start the server with ZombieBuddy (-javaagent:ZombieBuddy.jar) and add the mod to the server. The car fix is client-side and works on any server; the item transfer fix needs the mod on the server.
+description=
+description=Source and technical details: README.md inside the mod.
+tags=Build 42;Misc;Multiplayer
+visibility=public

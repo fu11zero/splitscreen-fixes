@@ -1,0 +1,6 @@
+# Decompiled game code and downloaded tools are local only
+decompiled/
+tools/*.jar
+build/
+# Built by build.sh
+Contents/mods/*/42/media/java/**/*.jar

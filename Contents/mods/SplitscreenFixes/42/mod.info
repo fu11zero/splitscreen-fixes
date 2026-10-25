@@ -1,0 +1,12 @@
+name=Splitscreen Fixes
+id=SplitscreenFixes
+description=Fixes for splitscreen players on a multiplayer server: stuck item transfers and vehicles that don't move for other players.
+author=fullzero
+category=misc
+versionMin=42.21.0
+poster=poster.png
+icon=icon.png
+require=\ZombieBuddy
+javaJarFile=media/java/SplitscreenFixes.jar
+javaPkgName=dev.splitscreenfixes
+ZBVersionMin=2.3.4
