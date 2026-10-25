@@ -90,6 +90,19 @@ multiplayer server (Host from the main menu or a dedicated server).
     Small map popups (`ISMapSymbolDialog`, `ISTextBoxMap`, map options) still clamp to the
     whole window.
 
+- **Flier / brochure window per splitscreen player** (`lua/client/SplitscreenFixes/PrintMedia.lua`;
+  client side).
+  - Vanilla (`PZAPI/ui/organisms/PrintMedia.lua`): a module-local `worldMapFlier` flag shared by
+    all windows, checked against the global `ISWorldMap.instance` in `renderUpdate`, so a flier
+    one player opens closes at once while another player has the map open. The "show on map"
+    buttons use `getPlayer()` ("FIXME: splitscreen") and open the map for the wrong player.
+    `updateSize` caps the height by the whole window; the window opened from the map sits at
+    20,20 (player 0's screen).
+  - Patch: `ISReadABook:displayPrintMedia` / `ISWorldMap:onMouseUpPrintMedia` give the window
+    its player; it is closed only by that player's own map (`ISWorldMap.IsVisibleFor`), the map
+    buttons run with `getPlayer()` returning that player, and in splitscreen the size cap and
+    position use the player's screen. All wrapped, so GamepadTweaks' flier wrappers still run.
+
 - **Moodles of the upper players don't run onto the lower players' screens**
   (`Patches.MoodleIconSize`, `MoodleSize`; client side).
   - Vanilla: `MoodlesUI` stacks moodles in one column (slot i at `y + i * (10 + size)`) with the
