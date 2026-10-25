@@ -13,20 +13,26 @@ function SplitscreenUI.getPlayerRect(playerNum)
         getPlayerScreenWidth(playerNum), getPlayerScreenHeight(playerNum)
 end
 
--- Shrinks the window to the player's screen (not below minWidth/minHeight) and, if it is not
--- fully inside that screen, centres it there. A window the player moved within their own
--- screen stays where it is.
-function SplitscreenUI.fitToPlayerScreen(window, playerNum, minWidth, minHeight)
+-- If the window is not fully inside the player's screen, centres it there. A window the player
+-- moved within their own screen stays where it is. A window larger than the screen is aligned
+-- to its left/top edge.
+function SplitscreenUI.moveIntoPlayerScreen(window, playerNum)
     local sx, sy, sw, sh = SplitscreenUI.getPlayerRect(playerNum)
+    local x, y, w, h = window:getX(), window:getY(), window:getWidth(), window:getHeight()
+    if x < sx or y < sy or x + w > sx + sw or y + h > sy + sh then
+        window:setX(sx + math.max(0, (sw - w) / 2))
+        window:setY(sy + math.max(0, (sh - h) / 2))
+    end
+end
+
+-- Shrinks the window to the player's screen (not below minWidth/minHeight), then
+-- moveIntoPlayerScreen. Only for windows whose children follow setWidth/setHeight (anchors);
+-- XUI windows lay out in calculateLayout and must be capped through maximumWidth/Height.
+function SplitscreenUI.fitToPlayerScreen(window, playerNum, minWidth, minHeight)
+    local _, _, sw, sh = SplitscreenUI.getPlayerRect(playerNum)
     local w = math.max(math.min(window:getWidth(), sw), minWidth or 0)
     local h = math.max(math.min(window:getHeight(), sh), minHeight or 0)
     if w ~= window:getWidth() then window:setWidth(w) end
     if h ~= window:getHeight() then window:setHeight(h) end
-
-    local x, y = window:getX(), window:getY()
-    if x < sx or y < sy or x + w > sx + sw or y + h > sy + sh then
-        -- A window wider than the screen is aligned to its left/top edge instead.
-        window:setX(sx + math.max(0, (sw - w) / 2))
-        window:setY(sy + math.max(0, (sh - h) / 2))
-    end
+    SplitscreenUI.moveIntoPlayerScreen(window, playerNum)
 end

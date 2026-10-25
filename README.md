@@ -57,6 +57,22 @@ multiplayer server (Host from the main menu or a dedicated server).
     (`SplitscreenUI.fitToPlayerScreen`): shrunk in height if needed (the part lists scroll) and
     centred there unless the player already moved it somewhere inside their screen.
 
+- **Every splitscreen player has their own crafting/building window** (`lua/client/SplitscreenFixes/Crafting.lua`;
+  client side).
+  - Vanilla: `ISEntityUI` keeps windows per player, but its local `createWindow` (behind
+    `OpenWindow`, `OpenBuildWindow`, `OpenHandcraftWindow`) first calls
+    `ISEntityUI.CloseWindows()`, which closes every player's windows ("we only allow one open at
+    the moment"). The window is centred on the whole screen and its height is capped by the whole
+    screen (`ISHandcraftWindow/ISBuildWindow/ISBaseEntityWindow:initialise`). `ISBuildPanel:new`
+    stores itself in the global `ISBuildWindow.instance`, used by the build button
+    (`ISWidgetBuildControl:startBuild`), recipe double click and
+    `ISBuildingObject:onActionComplete`, so with two build windows one player builds through the
+    other's panel.
+  - Patch: while an `Open*` function runs, `CloseWindows` closes only that player's windows; the
+    new window is moved onto the player's screen; the height cap uses the player's screen;
+    build panels are kept per player (`ISBuildWindow.instances`) and `ISBuildWindow.instance` is
+    switched to the acting player's panel before vanilla uses it.
+
 - **The host server runs ZombieBuddy too** (`CoopServerAgent`; client side).
   - Vanilla: `CoopMaster.launchServer` starts the host server as a separate JVM with a fixed
     command line, without the client's `-javaagent`, so server-side Java mods never load.
