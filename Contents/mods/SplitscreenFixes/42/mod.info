@@ -1,6 +1,6 @@
 name=Splitscreen Fixes
 id=SplitscreenFixes
-description=Splitscreen fixes: stuck item transfers and cars on a server, firearm aiming, own world map, crafting window and flier window per player, mechanics window and moodles kept on the player's screen.
+description=Splitscreen fixes: stuck item transfers and cars on a server, firearm aiming, own world map, crafting window and flier window per player, mechanics window, moodles and confirmation dialogs kept on the player's screen.
 author=fullzero
 category=misc
 versionMin=42.21.0

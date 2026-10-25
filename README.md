@@ -105,6 +105,20 @@ multiplayer server (Host from the main menu or a dedicated server).
     buttons run with `getPlayer()` returning that player, and in splitscreen the size cap and
     position use the player's screen. All wrapped, so GamepadTweaks' flier wrappers still run.
 
+- **Confirmation dialogs on their player's screen, answerable with a gamepad**
+  (`lua/client/SplitscreenFixes/Dialogs.lua`; client side).
+  - Vanilla: `ISModalDialog/ISModalRichText/ISTextBox:new` centre on the player's screen only
+    for `x == 0`/`y == 0` with a gamepad player. Many callers pass whole-window coordinates
+    (`getCore():getScreenWidth() / 2 ...`) or coordinates of a window that is no longer at 0,0
+    (`ISWorldMap:onForget`, "forget the whole map", lands on player 0's screen). Dialogs aimed at
+    a player often don't pass the player at all, so they get no gamepad focus and only the mouse
+    can answer: `ISHealthPanel.ReceiveMedicalCheckRequest` (another player asks to inspect you),
+    faction/safehouse invites, remove designation zone, kill animal, the "i" help popups.
+  - Patch: in splitscreen a dialog with a known player that isn't fully inside that player's
+    screen is centred there. The entry points above (event handlers re-registered) run with
+    their player as the dialog's player, and a gamepad player gets the focus on the new Yes/No
+    dialog.
+
 - **Moodles of the upper players don't run onto the lower players' screens**
   (`Patches.MoodleIconSize`, `MoodleSize`; client side).
   - Vanilla: `MoodlesUI` stacks moodles in one column (slot i at `y + i * (10 + size)`) with the
