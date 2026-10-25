@@ -48,6 +48,15 @@ multiplayer server (Host from the main menu or a dedicated server).
     with a ready weapon, with `IsoPlayer.instance` and the camera character switched to that
     player (as `IsoPlayer.update` does) and restored afterwards.
 
+- **Vehicle mechanics window opens on its player's screen** (`lua/client/SplitscreenFixes/Mechanics.lua`;
+  client side).
+  - Vanilla: every player has their own `ISVehicleMechanics` (`ISPlayerDataObject`), but
+    `ISVehicleMechanics:new` centres the 800x600 window on the whole screen, so all players'
+    windows open in the same spot across the seam and look like one shared window.
+  - Patch: after `ISOpenMechanicsUIAction:perform` the window is fitted to the player's screen
+    (`SplitscreenUI.fitToPlayerScreen`): shrunk in height if needed (the part lists scroll) and
+    centred there unless the player already moved it somewhere inside their screen.
+
 - **The host server runs ZombieBuddy too** (`CoopServerAgent`; client side).
   - Vanilla: `CoopMaster.launchServer` starts the host server as a separate JVM with a fixed
     command line, without the client's `-javaagent`, so server-side Java mods never load.
@@ -91,6 +100,7 @@ src/main/java/dev/splitscreenfixes/   mod source
 Contents/mods/SplitscreenFixes/       the mod itself (Workshop layout)
   42/mod.info, poster.png, icon.png
   42/media/java/SplitscreenFixes.jar  <- build.sh output
+  42/media/lua/client/SplitscreenFixes/  Lua UI fixes (SplitscreenUI.lua = shared helpers)
 preview.png, workshop.txt             Workshop page
 build.sh                              build (JDK 25)
 tools/decompile.sh                    decompile game classes into decompiled/ (not in git)
