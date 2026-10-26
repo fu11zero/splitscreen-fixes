@@ -1,0 +1,18 @@
+{
+    "UI_SplitscreenFixes_Options": "Splitscreen Fixes",
+    "UI_SplitscreenFixes_Options_desc": "Изменения раскладки сплитскрина. Выключите, чтобы вернуть ванильное поведение. Исправления багов (перенос предметов, машины, прицел, режим поиска, мудлы) работают всегда.",
+    "UI_SplitscreenFixes_ownMap": "Своя карта мира у каждого игрока",
+    "UI_SplitscreenFixes_ownMap_tooltip": "Каждый открывает карту на своём экране, остальные продолжают двигаться. Выкл.: одна общая карта на всё окно, как в ванилле. Перед переключением закройте карты.",
+    "UI_SplitscreenFixes_flierWindow": "Флаер на экране игрока",
+    "UI_SplitscreenFixes_flierWindow_tooltip": "Флаер или брошюра подгоняются под экран своего игрока и не закрываются картой другого игрока.",
+    "UI_SplitscreenFixes_ownCrafting": "Свои окна крафта и строительства",
+    "UI_SplitscreenFixes_ownCrafting_tooltip": "Окно крафта не закрывает окна других игроков и открывается на экране игрока. Выкл.: одно окно крафта за раз, по центру всего окна.",
+    "UI_SplitscreenFixes_mechanicsWindow": "Окно механики на экране игрока",
+    "UI_SplitscreenFixes_mechanicsWindow_tooltip": "Окно механики машины открывается на экране своего игрока и ужимается по нему. Выкл.: по центру всего окна.",
+    "UI_SplitscreenFixes_contextMenus": "Контекстные меню на экране игрока",
+    "UI_SplitscreenFixes_contextMenus_tooltip": "Контекстные меню и подменю не вылезают за экран своего игрока и прокручиваются, если не помещаются.",
+    "UI_SplitscreenFixes_dialogs": "Диалоги на экране игрока",
+    "UI_SplitscreenFixes_dialogs_tooltip": "Окна подтверждения открываются по центру экрана своего игрока. Ответить геймпадом можно в любом случае.",
+    "UI_SplitscreenFixes_ownClocks": "Свои часы у каждого игрока",
+    "UI_SplitscreenFixes_ownClocks_tooltip": "У каждого игрока с часами свои часы, температура и будильник в углу его экрана. Выкл.: одни часы посередине, как в ванилле."
+}

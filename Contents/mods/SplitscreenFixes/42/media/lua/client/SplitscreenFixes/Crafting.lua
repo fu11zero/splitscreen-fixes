@@ -14,9 +14,14 @@
 -- Patch: while one of the Open* functions runs, CloseWindows closes only that player's
 -- windows; the new window is moved onto the player's screen; the height cap uses the player's
 -- screen; ISBuildWindow.instance is switched to the acting player's panel before vanilla
--- uses it.
+-- uses it. Option "ownCrafting"; when it is off everything is vanilla.
+
+local function enabled()
+    return SplitscreenUI.isSplitscreen() and SplitscreenFixes.isEnabled("ownCrafting")
+end
 
 require "SplitscreenFixes/SplitscreenUI"
+require "SplitscreenFixes/Options"
 require "Entity/ISEntityUI"
 require "Entity/ISUI/ISBaseEntityWindow"
 require "ISUI/Crafting/ISHandcraftWindow"
@@ -30,7 +35,7 @@ local openingPlayer = nil
 local vanillaCloseWindows = ISEntityUI.CloseWindows
 
 function ISEntityUI.CloseWindows()
-    if openingPlayer == nil or not SplitscreenUI.isSplitscreen() then
+    if openingPlayer == nil or not enabled() then
         return vanillaCloseWindows()
     end
     ISEntityUI.EnsurePlayers()
@@ -57,7 +62,7 @@ end
 local function wrapOpen(name)
     local vanilla = ISEntityUI[name]
     ISEntityUI[name] = function(player, ...)
-        if not (player and SplitscreenUI.isSplitscreen()) then
+        if not (player and enabled()) then
             return vanilla(player, ...)
         end
         local playerNum = player:getPlayerNum()
@@ -80,7 +85,7 @@ local function capHeightByPlayerScreen(class)
     local vanilla = class.initialise
     class.initialise = function(self)
         vanilla(self)
-        if not (self.playerNum and SplitscreenUI.isSplitscreen()) then return end
+        if not (self.playerNum and enabled()) then return end
         local screenH = getPlayerScreenHeight(self.playerNum)
         local pct = self.maximumHeightPercent or -1
         local cap = pct > 0 and screenH * math.min(pct, 1) or screenH
@@ -98,6 +103,7 @@ capHeightByPlayerScreen(ISBuildWindow)
 ISBuildWindow.instances = ISBuildWindow.instances or {}
 
 local function usePanelOf(playerNum)
+    if not enabled() then return end
     local panel = playerNum and ISBuildWindow.instances[playerNum]
     if panel then
         ISBuildWindow.instance = panel
@@ -115,7 +121,7 @@ end
 
 local vanillaDoubleClick = ISBuildPanel.onDoubleClick
 function ISBuildPanel:onDoubleClick(item)
-    ISBuildWindow.instance = self
+    if enabled() then ISBuildWindow.instance = self end
     return vanillaDoubleClick(self, item)
 end
 

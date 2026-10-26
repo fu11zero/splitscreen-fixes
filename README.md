@@ -3,6 +3,26 @@
 Java mod for Project Zomboid B42 (ZombieBuddy) that fixes splitscreen players on a
 multiplayer server (Host from the main menu or a dedicated server).
 
+## Options
+
+Settings > Mods > Splitscreen Fixes (`PZAPI.ModOptions`, `lua/client/SplitscreenFixes/Options.lua`,
+saved in `~/Zomboid/Lua/ModOptions.ini`). Features that change how vanilla lays out the
+splitscreen UI have a tick box (all on by default): someone on a small monitor may prefer
+vanilla's shared map or centred windows. Bug fixes have no option. Each check runs when the
+feature acts, so a change applies without reloading the save (to windows opened after it).
+`SplitscreenFixes.isEnabled(id)` in Lua; the Java clock patch gets the value through the
+global `SplitscreenFixes_setOption` (`Options.java`).
+
+| Option id         | Feature                                     |
+|-------------------|---------------------------------------------|
+| `ownMap`          | own world map per player                    |
+| `flierWindow`     | flier window per player (size, closing)     |
+| `ownCrafting`     | own crafting/building windows               |
+| `mechanicsWindow` | mechanics window on the player's screen     |
+| `contextMenus`    | context menus on the player's screen        |
+| `dialogs`         | dialogs centred on the player's screen      |
+| `ownClocks`       | own clock per player                        |
+
 ## Features
 
 - **Item transfers don't hang when two splitscreen players act at once** (`PacketSlots`,
@@ -56,6 +76,7 @@ multiplayer server (Host from the main menu or a dedicated server).
   - Patch: after `ISOpenMechanicsUIAction:perform` the window is fitted to the player's screen
     (`SplitscreenUI.fitToPlayerScreen`): shrunk in height if needed (the part lists scroll) and
     centred there unless the player already moved it somewhere inside their screen.
+  - Option `mechanicsWindow`.
 
 - **Every splitscreen player has their own crafting/building window** (`lua/client/SplitscreenFixes/Crafting.lua`;
   client side).
@@ -72,6 +93,7 @@ multiplayer server (Host from the main menu or a dedicated server).
     new window is moved onto the player's screen; the height cap uses the player's screen;
     build panels are kept per player (`ISBuildWindow.instances`) and `ISBuildWindow.instance` is
     switched to the acting player's panel before vanilla uses it.
+  - Option `ownCrafting` (off: all of the above is vanilla).
 
 - **Every splitscreen player has their own world map** (`lua/client/SplitscreenFixes/Map.lua`;
   client side).
@@ -91,6 +113,7 @@ multiplayer server (Host from the main menu or a dedicated server).
     `prerender`) are clipped to the map with a stencil, so they don't spill onto other screens.
     Small map popups (`ISMapSymbolDialog`, `ISTextBoxMap`, map options) still clamp to the
     whole window.
+  - Option `ownMap` (off: every wrapper calls vanilla; `IsVisibleFor` reports the shared map).
 
 - **Flier / brochure window per splitscreen player** (`lua/client/SplitscreenFixes/PrintMedia.lua`;
   client side).
@@ -104,6 +127,7 @@ multiplayer server (Host from the main menu or a dedicated server).
     its player; it is closed only by that player's own map (`ISWorldMap.IsVisibleFor`), the map
     buttons run with `getPlayer()` returning that player, and in splitscreen the size cap and
     position use the player's screen. All wrapped, so GamepadTweaks' flier wrappers still run.
+  - Option `flierWindow` (closing, size, position); the map buttons' player is always fixed.
 
 - **Context menus stay on their player's screen** (`lua/client/SplitscreenFixes/ContextMenu.lua`;
   client side).
@@ -114,6 +138,7 @@ multiplayer server (Host from the main menu or a dedicated server).
   - Patch (splitscreen): the height limit and the clamping use the player's screen; a submenu
     that would cross its right edge opens left of its parent; a slide-in whose goal was clamped
     away ends after its 100 ms.
+  - Option `contextMenus`.
 
 - **Confirmation dialogs on their player's screen, answerable with a gamepad**
   (`lua/client/SplitscreenFixes/Dialogs.lua`; client side).
@@ -128,6 +153,7 @@ multiplayer server (Host from the main menu or a dedicated server).
     screen is centred there. The entry points above (event handlers re-registered) run with
     their player as the dialog's player, and a gamepad player gets the focus on the new Yes/No
     dialog.
+  - Option `dialogs` turns off only the centring; the player and gamepad focus are always on.
 
 - **Moodles of the upper players don't run onto the lower players' screens**
   (`Patches.MoodleIconSize`, `MoodleSize`; client side).
@@ -154,6 +180,7 @@ multiplayer server (Host from the main menu or a dedicated server).
     with that player's moodles below it. A click changes only that player's alarm. A player
     without a watch has no clock, as in single player. Leftovers: `ISButtonPrompt` still adds a
     side margin for the clock, `ISCharacterScreen` "survived for" looks at player 0's clock.
+  - Option `ownClocks` (`Options.ownClocks`; off: extra clocks hidden, vanilla clock untouched).
 
 - **Search mode (foraging) shows the visible circle for every splitscreen player**
   (`Patches.SearchModeOffset`, `SearchModeOverlay`; client side).
@@ -208,7 +235,9 @@ src/main/java/dev/splitscreenfixes/   mod source
 Contents/mods/SplitscreenFixes/       the mod itself (Workshop layout)
   42/mod.info, poster.png, icon.png
   42/media/java/SplitscreenFixes.jar  <- build.sh output
-  42/media/lua/client/SplitscreenFixes/  Lua UI fixes (SplitscreenUI.lua = shared helpers)
+  42/media/lua/client/SplitscreenFixes/  Lua UI fixes (SplitscreenUI.lua = shared helpers,
+                                         Options.lua = Settings > Mods)
+  42/media/lua/shared/Translate/        option names (EN, RU)
 preview.png, workshop.txt             Workshop page
 build.sh                              build (JDK 25)
 tools/decompile.sh                    decompile game classes into decompiled/ (not in git)

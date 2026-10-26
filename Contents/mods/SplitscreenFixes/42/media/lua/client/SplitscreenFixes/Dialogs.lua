@@ -15,9 +15,11 @@
 -- Patch: in splitscreen a dialog whose player is known and which is not fully inside that
 -- player's screen is centred there. The entry points above run with their player as the
 -- dialog's player (o.player, so ISModalDialog:destroy returns the focus) and, for a gamepad
--- player, give the new Yes/No dialog the focus.
+-- player, give the new Yes/No dialog the focus. Option "dialogs" turns off only the centring;
+-- the player and the gamepad focus are a bug fix and always on.
 
 require "SplitscreenFixes/SplitscreenUI"
+require "SplitscreenFixes/Options"
 require "ISUI/ISModalDialog"
 require "ISUI/ISModalRichText"
 require "ISUI/ISTextBox"
@@ -35,6 +37,7 @@ local created = nil
 
 -- Uses the element's fields: ISUIElement:getX/getWidth would instantiate it before initialise.
 local function centreIfOutside(dialog, playerNum)
+    if not (SplitscreenUI.isSplitscreen() and SplitscreenFixes.isEnabled("dialogs")) then return end
     local sx, sy, sw, sh = SplitscreenUI.getPlayerRect(playerNum)
     local x, y, w, h = dialog.x, dialog.y, dialog.width, dialog.height
     if x < sx or y < sy or x + w > sx + sw or y + h > sy + sh then
@@ -51,7 +54,7 @@ local function wrapNew(class)
         end
         local o = vanilla(self, x, y, width, height, text, arg6, target, onclick, player, ...)
         if created then table.insert(created, o) end
-        if type(player) == "number" and SplitscreenUI.isSplitscreen() then
+        if type(player) == "number" then
             centreIfOutside(o, player)
         end
         return o
@@ -74,9 +77,7 @@ local function asDialogPlayer(playerNum, giveFocus, fn, ...)
     local a, b = fn(...)
     contextPlayer, created = savedPlayer, savedCreated
     for _, dialog in ipairs(list) do
-        if SplitscreenUI.isSplitscreen() then
-            centreIfOutside(dialog, playerNum)
-        end
+        centreIfOutside(dialog, playerNum)
     end
     local joypadData = JoypadState.players[playerNum + 1]
     if giveFocus and joypadData then

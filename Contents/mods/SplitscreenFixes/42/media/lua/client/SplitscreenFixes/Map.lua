@@ -18,19 +18,30 @@
 -- and entity window checks look at the player's own map. ISWorldMap_instance stays as player
 -- 0's map for vanilla code and mods that check it (the keyboard/mouse player).
 -- Single player keeps vanilla behaviour except for using the same code path.
+-- Option "ownMap": when it is off every function below is vanilla (one shared map). A map
+-- already open when the option changes keeps working until it is closed.
 
 require "SplitscreenFixes/SplitscreenUI"
+require "SplitscreenFixes/Options"
 require "ISUI/Maps/ISWorldMap"
 require "ISUI/ISWorldObjectContextMenu"
 require "Entity/ISEntityUI"
 
 ISWorldMap.instances = ISWorldMap.instances or {}
 
+local function enabled()
+    return SplitscreenFixes.isEnabled("ownMap")
+end
+
 local function getMap(playerNum)
     return ISWorldMap.instances[playerNum]
 end
 
 function ISWorldMap.IsVisibleFor(playerNum)
+    if not enabled() then
+        -- The vanilla map covers every player's screen.
+        return ISWorldMap_instance ~= nil and ISWorldMap_instance:isVisible()
+    end
     local map = getMap(playerNum)
     return map ~= nil and map:isVisible()
 end
@@ -58,7 +69,7 @@ end
 local vanillaShouldPause = ISWorldMap.shouldPause
 function ISWorldMap.shouldPause()
     -- Pausing for one player's map would freeze the others in offline splitscreen.
-    if SplitscreenUI.isSplitscreen() then return false end
+    if enabled() and SplitscreenUI.isSplitscreen() then return false end
     return vanillaShouldPause()
 end
 
@@ -67,7 +78,7 @@ function ISWorldMap.ShowWorldMap(playerNum, centerX, centerY, zoom)
     if not ISWorldMap.IsAllowed() then
         return
     end
-    if not (MainScreen.instance and MainScreen.instance.inGame) then
+    if not (enabled() and MainScreen.instance and MainScreen.instance.inGame) then
         -- Debug map in the main menu.
         return vanillaShow(playerNum, centerX, centerY, zoom)
     end
@@ -114,7 +125,11 @@ function ISWorldMap.ShowWorldMap(playerNum, centerX, centerY, zoom)
     end
 end
 
+local vanillaHide = ISWorldMap.HideWorldMap
 function ISWorldMap.HideWorldMap(playerNum)
+    if not enabled() then
+        return vanillaHide(playerNum)
+    end
     if not ISWorldMap.IsAllowed() then
         return
     end
@@ -127,7 +142,11 @@ function ISWorldMap.HideWorldMap(playerNum)
     end
 end
 
+local vanillaToggle = ISWorldMap.ToggleWorldMap
 function ISWorldMap.ToggleWorldMap(playerNum)
+    if not enabled() then
+        return vanillaToggle(playerNum)
+    end
     if not ISWorldMap.IsAllowed() then
         return
     end
@@ -173,7 +192,7 @@ end
 
 local vanillaRender = ISWorldMap.render
 function ISWorldMap:render()
-    if not (SplitscreenUI.isSplitscreen() and ISWorldMap.instances[self.playerNum] == self) then
+    if not (enabled() and SplitscreenUI.isSplitscreen() and ISWorldMap.instances[self.playerNum] == self) then
         return vanillaRender(self)
     end
     -- Vanilla minus setDrawWorld(false) and with the player's screen instead of the window.
@@ -190,7 +209,7 @@ end
 -- them. Clip them to the player's map so they don't spill onto the neighbouring screens.
 local function clipToMap(vanilla)
     return function(self, ...)
-        if not (SplitscreenUI.isSplitscreen() and ISWorldMap.instances[self.playerNum] == self) then
+        if not (enabled() and SplitscreenUI.isSplitscreen() and ISWorldMap.instances[self.playerNum] == self) then
             return vanilla(self, ...)
         end
         self:setStencilRect(0, 0, self.width, self.height)
@@ -206,6 +225,7 @@ ISWorldMap.renderStashMaps = clipToMap(ISWorldMap.renderStashMaps)
 local vanillaClose = ISWorldMap.close
 function ISWorldMap:close()
     vanillaClose(self)
+    if not enabled() then return end
     -- Vanilla unblocked every player; keep blocked those still reading their own map.
     for playerNum, map in pairs(ISWorldMap.instances) do
         if map ~= self and map:isVisible() and map.character then
@@ -217,8 +237,12 @@ function ISWorldMap:close()
 end
 
 -- Close only the map of the player who died.
-Events.OnPlayerDeath.Remove(ISWorldMap.OnPlayerDeath)
+local vanillaOnDeath = ISWorldMap.OnPlayerDeath
+Events.OnPlayerDeath.Remove(vanillaOnDeath)
 function ISWorldMap.OnPlayerDeath(playerObj)
+    if not enabled() then
+        return vanillaOnDeath(playerObj)
+    end
     local playerNum = playerObj and playerObj:isLocalPlayer() and playerObj:getPlayerNum()
     if playerNum and ISWorldMap.IsVisibleFor(playerNum) then
         ISWorldMap.HideWorldMap(playerNum)
@@ -228,6 +252,7 @@ Events.OnPlayerDeath.Add(ISWorldMap.OnPlayerDeath)
 
 -- The world context menu and entity windows were blocked for everybody while the map was open.
 local function withOwnMapAsGlobal(playerNum, fn, ...)
+    if not enabled() then return fn(...) end
     local saved = ISWorldMap_instance
     if playerNum then
         ISWorldMap_instance = getMap(playerNum) -- nil if this player never opened a map

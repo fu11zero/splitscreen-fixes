@@ -11,15 +11,16 @@
 -- Patch (splitscreen only): calcHeight uses the player's screen height; setX/setY clamp
 -- menus and submenus to the player's screen, and a submenu that would cross its right edge
 -- opens on the left of its parent. A slide-in animation whose goal is now out of reach is
--- finished after its 100 ms.
+-- finished after its 100 ms. Option "contextMenus".
 
 require "SplitscreenFixes/SplitscreenUI"
+require "SplitscreenFixes/Options"
 require "ISUI/ISContextMenu"
 
 local SLIDE_MS = 100
 
 local function playerRectOf(menu)
-    if not SplitscreenUI.isSplitscreen() then return nil end
+    if not (SplitscreenUI.isSplitscreen() and SplitscreenFixes.isEnabled("contextMenus")) then return nil end
     if type(menu.player) ~= "number" or not menu:getKeepOnScreen() then return nil end
     return SplitscreenUI.getPlayerRect(menu.player)
 end

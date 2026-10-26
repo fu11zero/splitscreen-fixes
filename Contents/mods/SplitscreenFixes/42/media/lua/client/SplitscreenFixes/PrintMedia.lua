@@ -20,13 +20,20 @@
 -- getPlayer() returning the window's player. In splitscreen the size cap uses the player's
 -- screen and the window is kept inside it. Windows without a known player (debug menu) stay
 -- vanilla. Everything is wrapped, not replaced (GamepadTweaks wraps the same functions).
+-- Option "flierWindow" turns off the closing, size and position changes; the map buttons'
+-- player is a bug fix and always on.
 
 require "SplitscreenFixes/SplitscreenUI"
+require "SplitscreenFixes/Options"
 require "PZAPI/ui/organisms/PrintMedia"
 require "ISUI/Maps/ISWorldMap"
 require "TimedActions/ISReadABook"
 
 local UI = PZAPI.UI
+
+local function enabled()
+    return SplitscreenFixes.isEnabled("flierWindow")
+end
 
 -- Player whose flier is being created, nil outside the wrapped openers.
 local openingPlayer = nil
@@ -90,7 +97,7 @@ end
 local vanillaUpdateSize = UI.PrintMedia.updateSize
 UI.PrintMedia.updateSize = function(self, ...)
     local playerNum = self.splitscreenPlayer
-    if playerNum == nil or not SplitscreenUI.isSplitscreen() then
+    if playerNum == nil or not (SplitscreenUI.isSplitscreen() and enabled()) then
         return vanillaUpdateSize(self, ...)
     end
     -- Vanilla with the player's screen instead of the whole window.
@@ -126,7 +133,7 @@ end
 local vanillaRenderUpdate = UI.PrintMedia.renderUpdate
 UI.PrintMedia.renderUpdate = function(self, ...)
     local playerNum = self.splitscreenPlayer
-    if playerNum == nil then
+    if playerNum == nil or not enabled() then
         return vanillaRenderUpdate(self, ...)
     end
     -- Hide the shared map instance from vanilla's worldMapFlier check.

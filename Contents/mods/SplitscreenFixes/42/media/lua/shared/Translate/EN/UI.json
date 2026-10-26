@@ -1,0 +1,18 @@
+{
+    "UI_SplitscreenFixes_Options": "Splitscreen Fixes",
+    "UI_SplitscreenFixes_Options_desc": "Splitscreen layout changes. Turn one off to get the vanilla behaviour back. Bug fixes (item transfers, cars, aiming, search mode, moodles) always work.",
+    "UI_SplitscreenFixes_ownMap": "Own world map per player",
+    "UI_SplitscreenFixes_ownMap_tooltip": "Each player opens the map on their own screen and the others keep moving. Off: one shared map over the whole window, as in vanilla. Close open maps before changing.",
+    "UI_SplitscreenFixes_flierWindow": "Flier window on the player's screen",
+    "UI_SplitscreenFixes_flierWindow_tooltip": "A flier or brochure is sized and kept on its player's screen and is not closed by another player's map.",
+    "UI_SplitscreenFixes_ownCrafting": "Own crafting and building windows",
+    "UI_SplitscreenFixes_ownCrafting_tooltip": "Opening a crafting window doesn't close the other players' windows; windows open on the player's screen. Off: one crafting window at a time, centred on the whole window.",
+    "UI_SplitscreenFixes_mechanicsWindow": "Mechanics window on the player's screen",
+    "UI_SplitscreenFixes_mechanicsWindow_tooltip": "The vehicle mechanics window opens on its player's screen and shrinks to fit. Off: centred on the whole window.",
+    "UI_SplitscreenFixes_contextMenus": "Context menus on the player's screen",
+    "UI_SplitscreenFixes_contextMenus_tooltip": "Right-click menus and submenus stay on their player's screen and scroll when they don't fit.",
+    "UI_SplitscreenFixes_dialogs": "Dialogs on the player's screen",
+    "UI_SplitscreenFixes_dialogs_tooltip": "Confirmation dialogs open in the middle of their player's screen. The gamepad answers them either way.",
+    "UI_SplitscreenFixes_ownClocks": "Own clock per player",
+    "UI_SplitscreenFixes_ownClocks_tooltip": "Each player with a watch has a clock with their own temperature and alarm in the corner of their screen. Off: one clock in the middle, as in vanilla."
+}

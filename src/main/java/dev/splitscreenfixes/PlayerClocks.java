@@ -50,7 +50,7 @@ public final class PlayerClocks {
     }
 
     private static boolean active() {
-        return !failed && IsoPlayer.numPlayers > 1;
+        return !failed && Options.ownClocks && IsoPlayer.numPlayers > 1;
     }
 
     // Player index of a clock, -1 if it is not one of ours.
