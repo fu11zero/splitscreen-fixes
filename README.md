@@ -94,6 +94,10 @@ global `SplitscreenFixes_setOption` (`Options.java`).
     other's panel.
   - Patch: while an `Open*` function runs, `CloseWindows` closes only that player's windows; the
     new window is moved onto the player's screen; the height cap uses the player's screen;
+    every `calculateLayout` of the crafting/build window caps width and height by the player's
+    screen (vanilla restores the last size, capped only by the whole screen, so a window sized
+    before the second player joined spilled onto their screen); a window already open when the
+    screen splits is relaid out once in `prerender` (vanilla relays out only on resize);
     build panels are kept per player (`ISBuildWindow.instances`) and `ISBuildWindow.instance` is
     switched to the acting player's panel before vanilla uses it.
   - Option `ownCrafting` (off: all of the above is vanilla).

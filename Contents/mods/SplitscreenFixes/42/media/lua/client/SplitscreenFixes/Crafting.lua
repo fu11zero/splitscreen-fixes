@@ -12,7 +12,7 @@
 -- through the other player's panel.
 --
 -- Patch: while one of the Open* functions runs, CloseWindows closes only that player's
--- windows; the new window is moved onto the player's screen; the height cap uses the player's
+-- windows; the new window is moved onto the player's screen; the size cap uses the player's
 -- screen; ISBuildWindow.instance is switched to the acting player's panel before vanilla
 -- uses it. Option "ownCrafting"; when it is off everything is vanilla.
 
@@ -98,6 +98,54 @@ end
 capHeightByPlayerScreen(ISBaseEntityWindow)
 capHeightByPlayerScreen(ISHandcraftWindow)
 capHeightByPlayerScreen(ISBuildWindow)
+
+-- Width and height cap from the player's screen on every layout pass. createWindow restores
+-- the size the player last had (ISEntityUI.players[n].windows[key].width), capped only by the
+-- whole screen, so a window sized before the second player joined spills onto their screen;
+-- a window open while a player joins keeps its size too. calculateLayout clamps the preferred
+-- size to maximumWidth/Height, so they are narrowed for the call and restored after it.
+local function capLayoutByPlayerScreen(class)
+    local vanilla = class.calculateLayout
+    if not vanilla then return end
+    class.calculateLayout = function(self, preferredWidth, preferredHeight)
+        if not (self.playerNum and enabled()) then
+            return vanilla(self, preferredWidth, preferredHeight)
+        end
+        local _, _, sw, sh = SplitscreenUI.getPlayerRect(self.playerNum)
+        local maxW, maxH = self.maximumWidth, self.maximumHeight
+        local capW = math.max(sw, self.minimumWidth or 0)
+        local capH = math.max(sh, self.minimumHeight or 0)
+        self.maximumWidth = (maxW and maxW > 0) and math.min(maxW, capW) or capW
+        self.maximumHeight = (maxH and maxH > 0) and math.min(maxH, capH) or capH
+        local result = vanilla(self, preferredWidth, preferredHeight)
+        self.maximumWidth, self.maximumHeight = maxW, maxH
+        return result
+    end
+end
+
+capLayoutByPlayerScreen(ISHandcraftWindow)
+capLayoutByPlayerScreen(ISBuildWindow)
+
+-- Vanilla prerender recalculates the layout only when dirtyLayout is set (resize), so a window
+-- that was open when the screen split keeps its full-screen size. Request one relayout to the
+-- player's screen; once per screen size, in case the content can't get that small.
+local function shrinkToPlayerScreen(class)
+    local vanilla = class.prerender
+    class.prerender = function(self)
+        if self.playerNum and self.xuiRecalculateLayout and enabled() then
+            local _, _, sw, sh = SplitscreenUI.getPlayerRect(self.playerNum)
+            local key = sw .. "x" .. sh
+            if (self:getWidth() > sw or self:getHeight() > sh) and self.splitscreenFitTried ~= key then
+                self.splitscreenFitTried = key
+                self:xuiRecalculateLayout(math.min(self:getWidth(), sw), math.min(self:getHeight(), sh), true)
+            end
+        end
+        return vanilla(self)
+    end
+end
+
+shrinkToPlayerScreen(ISHandcraftWindow)
+shrinkToPlayerScreen(ISBuildWindow)
 
 -- One build panel per player instead of the last one created.
 ISBuildWindow.instances = ISBuildWindow.instances or {}
