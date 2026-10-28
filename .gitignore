@@ -4,3 +4,4 @@ tools/*.jar
 build/
 # Built by build.sh
 Contents/mods/*/42/media/java/**/*.jar
+Contents/mods/*/42/media/java/**/*.jar.zbs
