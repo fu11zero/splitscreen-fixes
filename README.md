@@ -264,4 +264,5 @@ Contents/mods/SplitscreenFixes/       the mod itself (Workshop layout)
 preview.png, workshop.txt             Workshop page
 build.sh                              build (JDK 25)
 tools/decompile.sh                    decompile game classes into decompiled/ (not in git)
+tools/snapshot.sh                     vanilla Lua, shaders and those classes into decompiled/<version>/
 ```
