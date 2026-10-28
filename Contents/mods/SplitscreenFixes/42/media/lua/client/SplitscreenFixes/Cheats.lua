@@ -71,18 +71,30 @@ local function copyCheats(from, to)
     sendPlayerExtraInfo(to)
 end
 
+local pendingCount = 0
+
 local function onCreatePlayer(playerNum, player)
-    if playerNum > 0 then pending[playerNum] = player end
+    if playerNum > 0 and not pending[playerNum] then
+        pending[playerNum] = player
+        pendingCount = pendingCount + 1
+    end
 end
 
+local function clearPending(playerNum)
+    pending[playerNum] = nil
+    pendingCount = pendingCount - 1
+end
+
+-- Kahlua has no global next(), so a counter tells whether anybody is waiting.
 local function onTick()
-    if next(pending) == nil then return end
+    if pendingCount == 0 then return end
     local source = getSpecificPlayer(0)
-    for playerNum, player in pairs(pending) do
-        if getSpecificPlayer(playerNum) ~= player or player:isDead() then
-            pending[playerNum] = nil
-        elseif not isClient() or player:getOnlineID() ~= -1 then
-            pending[playerNum] = nil
+    for playerNum = 1, 3 do
+        local player = pending[playerNum]
+        if player and (getSpecificPlayer(playerNum) ~= player or player:isDead()) then
+            clearPending(playerNum)
+        elseif player and (not isClient() or player:getOnlineID() ~= -1) then
+            clearPending(playerNum)
             if source and source ~= player and not source:isDead() and canUseCheats(source) and canUseCheats(player) then
                 copyCheats(source, player)
                 print("[SplitscreenFixes] cheats of player 0 copied to player " .. playerNum)
