@@ -195,13 +195,16 @@ function ISWorldMap:render()
     if not (enabled() and SplitscreenUI.isSplitscreen() and ISWorldMap.instances[self.playerNum] == self) then
         return vanillaRender(self)
     end
-    -- Vanilla minus setDrawWorld(false) and with the player's screen instead of the window.
-    getWorld():setDrawWorld(true)
+    -- Vanilla sizes the map to the whole window and calls setDrawWorld(false). Run it with the
+    -- resize disabled (the rest of render draws the gamepad cross and prompts by self.width/height)
+    -- and turn world drawing back on afterwards.
     setRectToPlayerScreen(self)
-    self.isometric = self.mapAPI:getBoolean("Isometric")
-    self.perspectiveBtn:setImage(self.isometric and self.texViewIsometric or self.texViewOrthographic)
-    self.keyUI:setIso(self.isometric)
-    self:updateJoypad()
+    local noop = function() end
+    self.setWidth, self.setHeight = noop, noop
+    local ok, err = pcall(vanillaRender, self)
+    self.setWidth, self.setHeight = nil, nil
+    getWorld():setDrawWorld(true)
+    if not ok then error(err, 0) end
 end
 
 -- Flier and stash map icons (ISWorldMap:renderPrintMedia/renderStashMaps, from prerender) are
