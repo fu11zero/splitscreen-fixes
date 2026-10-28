@@ -192,6 +192,16 @@ global `SplitscreenFixes_setOption` (`Options.java`).
     The drunk and glasses blur circles use the same offsets.
   - Patch (splitscreen): after `startMainThread` the offset is 0, 0 for every player.
 
+- **View cone for every splitscreen player** (`Patches.ViewConeShader`, `ViewCone`; client side).
+  - Vanilla: `VisibilityPolygon2$Drawer.renderToScreen` draws the cone with
+    `media/shaders/visibilityBlur.frag` into the shared offscreen buffer, viewport at the
+    player's screen, so `gl_FragCoord` includes `IsoCamera.getScreenLeft/Top(player)`
+    (`displayOrigin`). The shader subtracts it for `screenUV`, but not for the blur samples
+    (`pixel = gl_FragCoord / screenSize * texSize`): for every player but 0 they land outside
+    the polygon texture and there is no cone.
+  - Patch: after `ShaderUnit.loadShaderFile` reads `visibilityBlur.frag`, `displayOrigin` is
+    subtracted for the samples too (no-op with one player, offset 0, 0). Same shader in 42.22.
+
 - **The host server runs ZombieBuddy too** (`CoopServerAgent`; client side).
   - Vanilla: `CoopMaster.launchServer` starts the host server as a separate JVM with a fixed
     command line, without the client's `-javaagent`, so server-side Java mods never load.

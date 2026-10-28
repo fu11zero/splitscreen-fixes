@@ -123,6 +123,16 @@ public final class Patches {
         }
     }
 
+    // Client: view cone for every splitscreen player (see ViewCone).
+    @Patch(className = "zombie.core.opengl.ShaderUnit", methodName = "loadShaderFile")
+    public static class ViewConeShader {
+        @Patch.OnExit
+        public static void exit(@Patch.Argument(0) String fileName,
+                                @Patch.Return(readOnly = false) String code) {
+            code = ViewCone.afterLoadShaderFile(fileName, code);
+        }
+    }
+
     public static boolean isLocalPlayer(short onlineId) {
         if (onlineId == -1) {
             return false;
