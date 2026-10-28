@@ -33,7 +33,7 @@ description=[*]Enable Splitscreen Fixes in the main menu Mods list [b]and[/b] in
 description=[/list]
 description=
 description=[h2]Host from the main menu[/h2]
-description=The game starts the host server as a separate process without ZombieBuddy. This mod adds ZombieBuddy to that process, with policy=deny-new: the server loads only Java mods you already approved in the game. When ZombieBuddy asks about Splitscreen Fixes, allow it and save the decision.
+description=The game starts the host server as a separate process without ZombieBuddy. This mod adds ZombieBuddy to that process. The server loads Java mods you approved with "remember" or whose author you trust; for any other Java mod ZombieBuddy shows its dialog while the host starts (denied after 30 seconds).
 description=
 description=[h2]Dedicated server[/h2]
 description=Start the server with ZombieBuddy (-javaagent:ZombieBuddy.jar) and add the mod to the server. Only the item transfer fix needs the mod on the server; the rest is client-side and works on any server.

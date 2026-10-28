@@ -28,9 +28,12 @@ import net.bytebuddy.jar.asm.Opcodes;
 //         ...
 //     }
 //
-// The server is a background process, so the agent gets policy=deny-new unless the client
-// set a policy: it loads only jars already approved (and persisted) in the client's prompt
-// instead of showing approval dialogs from a process nobody looks at.
+// Unless the client set a policy, the server agent gets policy=prompt with a batch approval
+// timeout. deny-new is not enough: it loads only jar hashes persisted in mod_approvals.json,
+// while a signed jar of a trusted author is approved in memory only, and only under prompt
+// (ZB 2.3.4 Loader: isAuthorTrusted vs isJarAllowedByPolicy), so after every rebuild the
+// server silently skipped this mod. Under prompt the trusted jars load without a dialog; a
+// really new jar shows ZB's dialog while the host starts and is denied after the timeout.
 public final class CoopServerAgent implements ClassFileTransformer {
     private static final String TARGET = "zombie/network/CoopMaster";
     private static final String TARGET_DOTTED = TARGET.replace('/', '.');
@@ -38,7 +41,7 @@ public final class CoopServerAgent implements ClassFileTransformer {
     private static final String METHOD_DESC = "(Ljava/lang/String;Ljava/lang/String;IZ)V";
     private static final String MAIN_CLASS = "zombie.network.GameServer";
     private static final String HOOK = "dev/splitscreenfixes/CoopServerAgent";
-    private static final String SERVER_POLICY = "policy=deny-new";
+    private static final String SERVER_POLICY = "policy=prompt,batch_approval_timeout=30";
 
     private CoopServerAgent() {}
 

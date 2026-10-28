@@ -224,9 +224,11 @@ global `SplitscreenFixes_setOption` (`Options.java`).
   - Patch: an ASM hook before `command.add("zombie.network.GameServer")` copies the
     ZombieBuddy agent argument from the client's JVM arguments (relative jar path made
     absolute), plus `--enable-native-access`/`--add-exports` like `start-server.sh`. Unless the
-    client set a policy, the server agent gets `policy=deny-new`: it is a background process,
-    so it loads only jars already approved in the client's prompt instead of waiting for a
-    dialog nobody sees. Approve this mod with "remember" in the client's ZombieBuddy prompt.
+    client set a policy, the server agent gets `policy=prompt,batch_approval_timeout=30`.
+    `deny-new` loads only hashes persisted in `mod_approvals.json`, but ZombieBuddy approves a
+    signed jar of a trusted author in memory only and only under `prompt`, so after every
+    update the server silently skipped this mod. Now trusted and remembered jars load without
+    a dialog; a new jar shows ZombieBuddy's dialog while the host starts, denied after 30 s.
 
 ## Setup
 
