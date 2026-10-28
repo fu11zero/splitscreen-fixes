@@ -202,6 +202,15 @@ global `SplitscreenFixes_setOption` (`Options.java`).
   - Patch: after `ShaderUnit.loadShaderFile` reads `visibilityBlur.frag`, `displayOrigin` is
     subtracted for the samples too (no-op with one player, offset 0, 0). Same shader in 42.22.
 
+- **Cheats for every splitscreen player** (`Cheats.lua`; client side, debug mode or admin).
+  - Vanilla: the Cheats panel (`ISAdminPowerUI`) binds to `getPlayer()` when it opens and
+    "Save" applies the ticks (Invisible, God mode, No clip, ...) only to that player;
+    `ISAdminPowerUI.onGameStart` restores `CheatPanel.ini` only for player 0. So player 0 can be
+    invisible while the others are chased by zombies.
+  - Patch: after vanilla "Save", the same ticks go to every other living local player
+    (`sendPlayerExtraInfo` for each); a splitscreen player who joins gets player 0's cheats
+    (in MP once they have an online id). One cheat set for all local players.
+
 - **The host server runs ZombieBuddy too** (`CoopServerAgent`; client side).
   - Vanilla: `CoopMaster.launchServer` starts the host server as a separate JVM with a fixed
     command line, without the client's `-javaagent`, so server-side Java mods never load.
