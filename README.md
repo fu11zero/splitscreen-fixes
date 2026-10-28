@@ -44,6 +44,9 @@ global `SplitscreenFixes_setOption` (`Options.java`).
     `UdpConnection.playerIds`; player 0 keeps the vanilla instance. Packets without a readable
     player (an `ItemTransaction` reject) get a throwaway instance so they can't overwrite a
     pending request either.
+  - 42.22 fixes this in vanilla: the three packets override `shouldInstantiate()`, so
+    `onServerPacket` parses each one into a new instance. The patch then steps aside (it still
+    matters on 42.21 servers).
 
 - **Cars driven by a splitscreen player move on the server** (`Patches.VehicleAuthorization`;
   client side, works on any server).
@@ -244,7 +247,8 @@ both sides.
 
 - `TransactionManager` on the server identifies transactions by a byte id only, and every
   client numbers them from 1, so a reject from one client can cancel another client's
-  transaction with the same id. Rare and not splitscreen-specific.
+  transaction with the same id. Rare and not splitscreen-specific. Fixed in 42.22
+  (`removeItemTransaction(id, connection)` checks the connection).
 - `WorldSimulation` checks car-to-car collisions only for `IsoPlayer.getPlayerIndex()`'s car.
 
 ## Layout

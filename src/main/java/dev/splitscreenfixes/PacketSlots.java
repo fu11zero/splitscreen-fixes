@@ -76,6 +76,11 @@ public final class PacketSlots {
             return vanilla;
         }
         PENDING.remove();
+        // 42.22+: these packets override shouldInstantiate(), so onServerPacket parses each one
+        // into a fresh instance and the shared one is never kept.
+        if (vanilla.shouldInstantiate()) {
+            return vanilla;
+        }
         int slot = pending.slot();
         if (slot == 0) {
             return vanilla;
