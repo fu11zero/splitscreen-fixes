@@ -3,7 +3,7 @@
 Player-facing change notes, newest first. Each section is copied as is into the Steam Workshop
 change notes when the mod is updated. Keep it in English, short, one line per change.
 
-## Unreleased
+## Update: 28 Oct @ 7:16pm
 
 - Fixed: the crafting and building windows no longer spill onto the other player's screen when
   they were sized before the second player joined; a window open while a player joins shrinks
@@ -16,3 +16,5 @@ change notes when the mod is updated. Keep it in English, short, one line per ch
 - Added: debug cheats (and admin powers) for every splitscreen player.
 - Compatibility: Project Zomboid 42.22, where vanilla fixed the item transfer packets itself;
   the mod's packet fix steps aside there.
+
+## Unreleased
