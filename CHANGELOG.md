@@ -22,3 +22,4 @@ change notes when the mod is updated. Keep it in English, short, one line per ch
 - Fixed: the second player's gamepad no longer gets stuck on a closed world map (B only played
   the map close sound) after the first player closed their map with the keyboard or mouse.
 - Fixed: Esc on the keyboard closes the first player's map, not another player's map on top of it.
+- Fixed: debug "Teleport here" on a player's map teleports that player, not always the first one.

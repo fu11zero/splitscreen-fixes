@@ -327,6 +327,24 @@ for _, name in ipairs({ "isKeyConsumed", "onKeyPress", "onKeyRelease" }) do
     end
 end
 
+-- Bug fix, always on: debug "Teleport here" (right click on the map) moved player 0 whoever's map
+-- it was. Vanilla ISWorldMap:onTeleport takes getSpecificPlayer(0) offline and sends
+-- "/teleportto x,y,z" online, which the server (TeleportToCommand.TeleportMeToCoords) applies to
+-- connection.players[0]. Patch: teleport the map's own player; online by name
+-- ("/teleportto "name" x,y,z", TeleportUserToCoords, needs the admin/debug capability anyway).
+local vanillaTeleport = ISWorldMap.onTeleport
+function ISWorldMap:onTeleport(worldX, worldY)
+    local playerObj = self.playerNum and getSpecificPlayer(self.playerNum)
+    if not playerObj or self.playerNum == 0 then
+        return vanillaTeleport(self, worldX, worldY)
+    end
+    if isClient() then
+        SendCommandToServer("/teleportto \"" .. playerObj:getUsername() .. "\" " .. tostring(worldX) .. "," .. tostring(worldY) .. ",0")
+    else
+        playerObj:teleportTo(worldX, worldY, 0.0)
+    end
+end
+
 -- Close only the map of the player who died.
 local vanillaOnDeath = ISWorldMap.OnPlayerDeath
 Events.OnPlayerDeath.Remove(vanillaOnDeath)

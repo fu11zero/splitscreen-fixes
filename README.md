@@ -131,6 +131,9 @@ global `SplitscreenFixes_setOption` (`Options.java`).
     a closed map (or its button panel) releases the gamepad (`[SplitscreenFixes] ... released` in the log).
   - Keyboard keys (`UIManager.onKeyPress/Release` go to the topmost visible element with key events)
     reach only player 0's map in splitscreen; before, Esc could close a gamepad player's map on top.
+  - Bug fix, always on: debug "Teleport here" (`ISWorldMap:onTeleport`) moved player 0 from any map
+    (`getSpecificPlayer(0)` offline, `/teleportto x,y,z` = `connection.players[0]` online). Now it moves
+    the map's own player (`/teleportto "name" x,y,z` online).
 
 - **Flier / brochure window per splitscreen player** (`lua/client/SplitscreenFixes/PrintMedia.lua`;
   client side).
