@@ -249,6 +249,18 @@ both sides.
   `[SplitscreenFixes] loading (server)`, and after the first concurrent action of player 2+
   `separate ItemTransaction packet for splitscreen player 1`.
 
+- `~/Zomboid/tools/checklog.py SplitscreenFixes` summarizes `console.txt`: mod loads per save
+  (a save with its own mod list without this mod runs with no Lua of it, the Java part stays),
+  ZombieBuddy patches, errors.
+
+## Game versions
+
+The mod has to work on the stable branch and be ready for the beta (pre-release). `build.sh`
+builds the jar against the installed game; with `~/Zomboid/tools/pz-versions.sh` present it also
+keeps the installed `projectzomboid.jar` in `~/Zomboid/jars/<version>/` and compiles against every
+kept version: "does NOT compile against game X" means the mod would break in X. Before switching
+branches, `tools/snapshot.sh` saves the vanilla code of the installed version for `diff -r`.
+
 ## Known leftovers (not fixed)
 
 - `TransactionManager` on the server identifies transactions by a byte id only, and every

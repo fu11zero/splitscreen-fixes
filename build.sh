@@ -34,3 +34,11 @@ else
     rm -f "$OUT.zbs"
     echo "no signing key at $ZBS_KEY, jar left unsigned"
 fi
+
+# Other game versions (stable / beta branch): keep this one's jar, compile against the kept ones
+# (~/Zomboid/tools/pz-versions.sh). The jar above is for the installed version either way.
+if [[ -f ../../tools/pz-versions.sh ]]; then
+    . ../../tools/pz-versions.sh
+    pz_save_jar
+    pz_check_versions $(find src/main/java -name '*.java')
+fi
