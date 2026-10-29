@@ -121,6 +121,16 @@ global `SplitscreenFixes_setOption` (`Options.java`).
     Small map popups (`ISMapSymbolDialog`, `ISTextBoxMap`, map options) still clamp to the
     whole window.
   - Option `ownMap` (off: every wrapper calls vanilla; `IsVisibleFor` reports the shared map).
+  - Bug fix, always on: a gamepad stuck on a closed map. Vanilla `WorldMapOptions:onMouseDownOutside`
+    calls `setJoypadFocus(joypadData.player, ...)` with an undeclared `joypadData`, i.e. a leaked
+    global holding the last handled gamepad (often another splitscreen player's). Player 0 using
+    the map options with a gamepad and then the mouse/keyboard hands the other player's gamepad to
+    player 0's map buttons; their B calls player 0's `ISWorldMap:close` (close sound, focus restored
+    only for player 0) and the player is stuck. Patch: the options use their own `joyfocus` and only
+    while the map is open; `close` drops every gamepad focus left inside the map; a button press on
+    a closed map (or its button panel) releases the gamepad (`[SplitscreenFixes] ... released` in the log).
+  - Keyboard keys (`UIManager.onKeyPress/Release` go to the topmost visible element with key events)
+    reach only player 0's map in splitscreen; before, Esc could close a gamepad player's map on top.
 
 - **Flier / brochure window per splitscreen player** (`lua/client/SplitscreenFixes/PrintMedia.lua`;
   client side).

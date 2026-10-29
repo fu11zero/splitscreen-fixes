@@ -239,6 +239,94 @@ function ISWorldMap:close()
     getWorld():setDrawWorld(true)
 end
 
+-- Bug fix, always on (not tied to "ownMap"): a gamepad left on a closed map.
+-- Vanilla WorldMapOptions:onMouseDownOutside moves the gamepad focus back to the map buttons
+-- with setJoypadFocus(joypadData.player, ...), but joypadData is not a local there: it is a
+-- leaked global (ISUIElementJoypad, JoyPadSetup) holding whichever gamepad was handled last,
+-- usually another splitscreen player's. So when player 0 uses the gamepad on the map options
+-- and then the mouse or keyboard, the click outside the options (or closing the map) hands the
+-- other player's gamepad to player 0's map buttons. Their B then goes to player 0's map:
+-- ISWorldMap:close plays the close sound and restores the focus of self.playerNum (player 0),
+-- so the other player stays stuck on a map that is not even shown.
+-- Patch: use the options window's own gamepad (self.joyfocus) and only while the map is open;
+-- close also drops any gamepad focus still pointing inside the closed map, and a gamepad that
+-- ends up on a closed map anyway is released by its next button press.
+local function isInside(ui, root)
+    while ui do
+        if ui == root then return true end
+        ui = ui.parent
+    end
+    return false
+end
+
+local function releaseFocusOn(map, keepPlayerNum)
+    for i, joypadData in pairs(JoypadState.players) do
+        local playerNum = i - 1
+        if joypadData and playerNum ~= keepPlayerNum and isInside(joypadData.focus, map) then
+            print("[SplitscreenFixes] player " .. playerNum .. " gamepad released from the closed map of player " .. tostring(map.playerNum))
+            setJoypadFocus(playerNum, nil)
+        end
+    end
+end
+
+function WorldMapOptions:onMouseDownOutside(x, y)
+    if self:isMouseOver() then
+        return -- click in ISTextEntryBox
+    end
+    if self.parent.optionBtn:isMouseOver() then
+        return
+    end
+    self:setVisible(false)
+    local joypadData = self.joyfocus
+    if joypadData and self.parent:isVisible() then
+        setJoypadFocus(joypadData.player, self.parent.buttonPanel)
+    end
+end
+
+local vanillaCloseForFocus = ISWorldMap.close
+function ISWorldMap:close()
+    vanillaCloseForFocus(self)
+    -- Vanilla restored the owner's focus to prevFocus; that must not point back into this map.
+    local own = JoypadState.players[self.playerNum + 1]
+    if own and isInside(own.focus, self) then
+        setJoypadFocus(self.playerNum, nil)
+    end
+    releaseFocusOn(self, self.playerNum)
+end
+
+local vanillaJoypadDown = ISWorldMap.onJoypadDown
+function ISWorldMap:onJoypadDown(button, joypadData)
+    if not self:isVisible() then
+        releaseFocusOn(self)
+        return
+    end
+    return vanillaJoypadDown(self, button, joypadData)
+end
+
+local vanillaPanelJoypadDown = ISWorldMapButtonPanel.onJoypadDown
+function ISWorldMapButtonPanel:onJoypadDown(button, joypadData)
+    if self.parent and not self.parent:isVisible() then
+        releaseFocusOn(self.parent)
+        return
+    end
+    return vanillaPanelJoypadDown(self, button, joypadData)
+end
+
+-- UIManager.onKeyPress/onKeyRelease hand a key to the topmost visible element that wants key
+-- events, so with two maps open the keyboard player's Esc (also C, S, symbol keys) went to
+-- whichever map was on top and could close a gamepad player's map. Only player 0 has the keyboard.
+local function isKeyboardMap(map)
+    return not (enabled() and SplitscreenUI.isSplitscreen()) or map.playerNum == 0
+end
+
+for _, name in ipairs({ "isKeyConsumed", "onKeyPress", "onKeyRelease" }) do
+    local vanilla = ISWorldMap[name]
+    ISWorldMap[name] = function(self, key)
+        if not isKeyboardMap(self) then return false end
+        return vanilla(self, key)
+    end
+end
+
 -- Close only the map of the player who died.
 local vanillaOnDeath = ISWorldMap.OnPlayerDeath
 Events.OnPlayerDeath.Remove(vanillaOnDeath)
