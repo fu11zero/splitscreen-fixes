@@ -128,7 +128,10 @@ capLayoutByPlayerScreen(ISBuildWindow)
 
 -- Vanilla prerender recalculates the layout only when dirtyLayout is set (resize), so a window
 -- that was open when the screen split keeps its full-screen size. Request one relayout to the
--- player's screen; once per screen size, in case the content can't get that small.
+-- player's screen; once per screen size, in case the content can't get that small. The window
+-- is moved only on open (wrapOpen), so a window open while the screen splits from 2 players
+-- (left/right, full height) to 3-4 (2x2 grid) stays where it was and covers the player below;
+-- move it into the player's screen whenever it leaves it, except while it is being dragged.
 local function shrinkToPlayerScreen(class)
     local vanilla = class.prerender
     class.prerender = function(self)
@@ -138,6 +141,15 @@ local function shrinkToPlayerScreen(class)
             if (self:getWidth() > sw or self:getHeight() > sh) and self.splitscreenFitTried ~= key then
                 self.splitscreenFitTried = key
                 self:xuiRecalculateLayout(math.min(self:getWidth(), sw), math.min(self:getHeight(), sh), true)
+                if self:getWidth() > sw or self:getHeight() > sh then
+                    print(string.format("[SplitscreenFixes] %s of player %d is %dx%d, larger than its screen %dx%d",
+                        tostring(self.Type), self.playerNum, self:getWidth(), self:getHeight(), sw, sh))
+                end
+            end
+            local resizing = (self.resizeWidget and self.resizeWidget.resizing)
+                or (self.resizeWidget2 and self.resizeWidget2.resizing)
+            if not (self.moving or resizing) then
+                SplitscreenUI.moveIntoPlayerScreen(self, self.playerNum)
             end
         end
         return vanilla(self)
@@ -146,6 +158,7 @@ end
 
 shrinkToPlayerScreen(ISHandcraftWindow)
 shrinkToPlayerScreen(ISBuildWindow)
+shrinkToPlayerScreen(ISBaseEntityWindow)
 
 -- One build panel per player instead of the last one created.
 ISBuildWindow.instances = ISBuildWindow.instances or {}

@@ -93,3 +93,24 @@ function ISContextMenu:updateSlideGoalY()
     vanillaSlideY(self)
     finishSlide(self, "slideGoalY")
 end
+
+-- Safety net: whatever moved the menu past setX/setY (e.g. ISUIElement:setWidth/setHeight
+-- clamp self.x/self.y to the whole window directly), put it back on the player's screen.
+-- Logged once per menu so the path that escaped the clamp can be found.
+local vanillaPrerender = ISContextMenu.prerender
+function ISContextMenu:prerender()
+    vanillaPrerender(self)
+    local sx, sy, sw, sh = playerRectOf(self)
+    if not sx or self:isEmpty() or self.x >= 100000 then return end
+    local x, y, w, h = self:getX(), self:getY(), self:getWidth(), self:getHeight()
+    if x < sx or y < sy or x + w > sx + sw or y + h > sy + sh then
+        if not self.splitscreenEscapeLogged then
+            self.splitscreenEscapeLogged = true
+            print(string.format("[SplitscreenFixes] context menu of player %d at %d,%d %dx%d outside its screen %d,%d %dx%d (sub=%s, slide=%s,%s)",
+                self.player, x, y, w, h, sx, sy, sw, sh, tostring(isSubMenu(self)),
+                tostring(self.slideGoalX), tostring(self.slideGoalY)))
+        end
+        self:setX(x)
+        self:setY(y)
+    end
+end

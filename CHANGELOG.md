@@ -3,6 +3,12 @@
 Player-facing change notes, newest first. Each section is copied as is into the Steam Workshop
 change notes when the mod is updated. Keep it in English, short, one line per change.
 
+## Unreleased
+
+- Fixed: with 3-4 players the crafting, building and entity windows no longer cover the player
+  below; a window that leaves its player's screen is moved back.
+- Fixed: context menus are put back on their player's screen if something moved them past it.
+
 ## Update: 28 Oct @ 7:16pm
 
 - Fixed: the crafting and building windows no longer spill onto the other player's screen when
