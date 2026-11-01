@@ -15,6 +15,16 @@ Step 2 ok. Steps 3–4: open window did not shrink, second fix added, retest.
 3. P1 opens crafting, then P2 joins while it is open: the window shrinks to P1's half.
 4. Same with the build window (`ISBuildWindow`) and with option `ownCrafting` off (vanilla).
 
+### Windows and context menus in a 2x2 split (fix 2026-11-01, `Crafting.lua` `shrinkToPlayerScreen`, `ContextMenu.lua` `prerender`)
+User report: with 3 players the crafting window of P1 covered P3 below; the world context menu
+was not limited to P1's screen (the cooking menu was fine).
+1. Two players, P1 opens crafting, P3 joins: the window moves into P1's top-left quarter.
+2. P1 drags the window partly onto P3's screen: it snaps back after release, not while dragging.
+3. 3-4 players: P1 (mouse) right-clicks the world near the bottom of P1's screen, opens a
+   submenu; same with a gamepad player and Interact. Menus stay on the player's screen.
+4. Log: `context menu of player N ... outside its screen` shows the path that escaped the
+   clamp (fix the cause, the safety net only hides it); `larger than its screen` for windows.
+
 ### Melee target outline for P2..P4
 Steam question about the outline. Our aiming fix made it work in the tested case.
 1. Settings → Display → Target outline: "Any weapon" and the default value, check both.

@@ -8,6 +8,11 @@ PZ_DIR="${PZ_DIR:-/mnt/data/SteamLibrary/steamapps/common/ProjectZomboid/project
 JDK="${JDK:-/usr/lib/jvm/java-25-openjdk}"
 # ZombieBuddy ZBS signature (doc/ModSigning.md): Ed25519 key + SteamID64 of the Workshop uploader.
 # Public key is published as JavaModZBS:<hex> in the Steam profile summary.
+# Off by default: until the key is in ZB's authors.json (zed-0xff/ZombieBuddy#118) ZB fetches it from the
+# Steam profile, and any fetch failure (timeout, 429, steamcommunity.com blocked) makes the jar "invalid"
+# and blocked with no way to approve it, while an unsigned jar just gets the approval dialog.
+# ZBS_SIGN=1 ./build.sh to sign.
+ZBS_SIGN="${ZBS_SIGN:-0}"
 ZBS_KEY="${ZBS_KEY:-$HOME/.ssh/zbs-ed25519.pem}"
 ZBS_STEAMID="${ZBS_STEAMID:-76561198084489589}"
 OUT=Contents/mods/SplitscreenFixes/42/media/java/SplitscreenFixes.jar
@@ -23,7 +28,7 @@ mkdir -p build/classes "$(dirname "$OUT")"
 echo "built $OUT"
 
 # ZB verifies Ed25519 over "ZBS:<SteamID64>:<lowercase sha256 of jar>" (ZBSVerifier.verify).
-if [[ -f "$ZBS_KEY" ]]; then
+if [[ "$ZBS_SIGN" == 1 && -f "$ZBS_KEY" ]]; then
     hash=$(sha256sum "$OUT" | cut -d' ' -f1)
     # pkeyutl -rawin needs a sized input, a pipe fails with "Could not allocate 0 bytes"
     printf 'ZBS:%s:%s' "$ZBS_STEAMID" "$hash" > build/zbs-payload
@@ -32,7 +37,7 @@ if [[ -f "$ZBS_KEY" ]]; then
     echo "signed $OUT.zbs"
 else
     rm -f "$OUT.zbs"
-    echo "no signing key at $ZBS_KEY, jar left unsigned"
+    echo "jar left unsigned (ZBS_SIGN=$ZBS_SIGN, key $ZBS_KEY)"
 fi
 
 # Other game versions (stable / beta branch): keep this one's jar, compile against the kept ones

@@ -3,6 +3,8 @@
 Java mod for Project Zomboid B42 (ZombieBuddy) that fixes splitscreen players on a
 multiplayer server (Host from the main menu or a dedicated server).
 
+Source: <https://github.com/fu11zero/splitscreen-fixes>
+
 ## Options
 
 Settings > Mods > Splitscreen Fixes (`PZAPI.ModOptions`, `lua/client/SplitscreenFixes/Options.lua`,

@@ -38,7 +38,7 @@ description=
 description=[h2]Dedicated server[/h2]
 description=Start the server with ZombieBuddy (-javaagent:ZombieBuddy.jar) and add the mod to the server. Only the item transfer fix needs the mod on the server; the rest is client-side and works on any server.
 description=
-description=Source and technical details: README.md inside the mod.
+description=Source code and technical details: [url=https://github.com/fu11zero/splitscreen-fixes]GitHub[/url] (README.md).
 description=
 description=[h2]Кратко по-русски[/h2]
 description=Исправления сплитскрина (разделённый экран, локальный кооп, несколько геймпадов на одном ПК) для Build 42: зависающий перенос предметов, машина не едет для сервера, прицел огнестрела не сводится у второго игрока, своя карта мира, свой крафт и строительство, окно механики, мудлы, флаеры и брошюры, свои часы и температура, режим поиска (собирательство) без чёрного экрана, конус обзора (поле зрения) у каждого игрока, читы отладки (невидимость, бессмертие) для всех игроков, контекстные меню, окна подтверждения (стереть карту, запрос на осмотр, приглашения) у каждого игрока на своём экране и с управлением геймпадом. Изменения интерфейса (своя карта, флаер, крафт, механика, контекстные меню, диалоги, часы) можно отключить по отдельности в Настройки - Моды; исправления багов работают всегда.

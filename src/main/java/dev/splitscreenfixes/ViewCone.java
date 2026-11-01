@@ -28,7 +28,6 @@ public final class ViewCone {
             }
             return code;
         }
-        Log.info(SHADER + ": view cone samples relative to the player's screen");
         return code.replace(VANILLA, FIXED);
     }
 }
