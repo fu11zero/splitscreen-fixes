@@ -5,6 +5,8 @@ change notes when the mod is updated. Keep it in English, short, one line per ch
 
 ## Unreleased
 
+## Update: 7 Nov @ 5:29pm
+
 - Fixed: on a server, a saved splitscreen character chosen out of order (the third one as the
   second player) no longer gets another character's skills, a broken inventory and lost progress.
 - Fixed: "Add new player" no longer overwrites a saved splitscreen character on a server.
