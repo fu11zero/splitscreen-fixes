@@ -7,9 +7,11 @@ import zombie.core.network.ByteBufferReader;
 import zombie.core.textures.TextureDraw;
 import zombie.core.raknet.UdpConnection;
 import zombie.network.GameClient;
+import zombie.network.IConnection;
 import zombie.network.PacketTypes.PacketType;
 import zombie.network.PacketsCache;
 import zombie.network.packets.INetworkPacket;
+import zombie.network.packets.character.CreatePlayerPacket;
 import zombie.ui.Clock;
 import zombie.ui.MoodlesUI;
 import zombie.vehicles.BaseVehicle;
@@ -41,6 +43,38 @@ public final class Patches {
                                 @Patch.Argument(0) PacketType type,
                                 @Patch.Return(readOnly = false) INetworkPacket packet) {
             packet = PacketSlots.packetFor(cache, type, packet);
+        }
+    }
+
+    // Server: move a saved character's players.db row to its slot before the slot's row is
+    // loaded or overwritten (see CharacterRows).
+    @Patch(className = "zombie.network.GameServer", methodName = "receivePlayerConnect")
+    public static class SavedCharacterConnect {
+        @Patch.OnEnter
+        public static void enter(@Patch.Argument(0) ByteBufferReader reader,
+                                 @Patch.Argument(1) IConnection connection) {
+            CharacterRows.beforePlayerConnect(reader, connection);
+        }
+    }
+
+    @Patch(className = "zombie.network.packets.character.CreatePlayerPacket", methodName = "processServer")
+    public static class NewCharacterConnect {
+        @Patch.OnEnter
+        public static void enter(@Patch.This CreatePlayerPacket packet,
+                                 @Patch.Argument(1) UdpConnection connection) {
+            CharacterRows.beforeCreatePlayer(packet, connection);
+        }
+    }
+
+    // Client: don't offer a saved character that already plays (see CharacterRows).
+    @Patch(className = "zombie.characters.IsoPlayer", methodName = "isSaveFileInUse")
+    public static class SavedCharacterInUse {
+        @Patch.OnExit
+        public static void exit(@Patch.This IsoPlayer saved,
+                                @Patch.Return(readOnly = false) boolean inUse) {
+            if (!inUse) {
+                inUse = CharacterRows.isRowInUse(saved);
+            }
         }
     }
 

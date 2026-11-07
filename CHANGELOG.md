@@ -5,6 +5,13 @@ change notes when the mod is updated. Keep it in English, short, one line per ch
 
 ## Unreleased
 
+- Fixed: on a server, a saved splitscreen character chosen out of order (the third one as the
+  second player) no longer gets another character's skills, a broken inventory and lost progress.
+- Fixed: "Add new player" no longer overwrites a saved splitscreen character on a server.
+- Fixed: a splitscreen character already in play is no longer offered in the join list.
+
+## Update: 1 Nov @ 11:45am
+
 - Fixed: with 3-4 players the crafting, building and entity windows no longer cover the player
   below; a window that leaves its player's screen is moved back.
 - Fixed: context menus are put back on their player's screen if something moved them past it.

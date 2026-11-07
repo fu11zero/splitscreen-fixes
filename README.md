@@ -227,6 +227,25 @@ global `SplitscreenFixes_setOption` (`Options.java`).
   - Patch: after `ShaderUnit.loadShaderFile` reads `visibilityBlur.frag`, `displayOrigin` is
     subtracted for the samples too (no-op with one player, offset 0, 0). Same shader in 42.22.
 
+- **Saved splitscreen characters can join in any order** (`CharacterRows`,
+  `lua/*/SplitscreenFixes/CharacterRows.lua`; server and client).
+  - Vanilla: a saved character joins the first free local slot (`ISJoypadListBox`), but only
+    the slot reaches the server (`ConnectCoopPacket`), which loads and saves the
+    `networkPlayers` row whose `playerIndex` equals it. With rows 1 Roma, 2 Otis, choosing Otis
+    as the second player makes the client play Otis and the server hold Roma: Roma's skills on
+    screen, failing inventory actions, Otis's progress lost on exit. "Add new player" writes
+    over the row of the slot (`CreatePlayerPacket`), so with a free slot and a saved character
+    in its row it destroys that character. A character in play also stays in the join list:
+    `IsoPlayer.isSaveFileInUse` compares fields network characters don't have.
+  - Patch: the row follows the slot. Before such a join the client asks the server to swap the
+    rows and waits for the answer; the server does the swap right before the slot's row is used
+    (`GameServer.receivePlayerConnect`, `CreatePlayerPacket.processServer`), so an abandoned join
+    changes nothing. The saved order of the characters changes, and nothing else. A slot can't
+    follow the row instead: a hole in `IsoPlayer.players` breaks loops over `numPlayers`.
+  - Without the Java part on the server (or no answer in 3 s) the out-of-order join is refused
+    with a message; joining in order works as in vanilla. Row 0 (main character) never moves.
+    Saves already damaged by this bug are not repaired.
+
 - **Cheats for every splitscreen player** (`Cheats.lua`; client side, debug mode or admin).
   - Vanilla: the Cheats panel (`ISAdminPowerUI`) binds to `getPlayer()` when it opens and
     "Save" applies the ticks (Invisible, God mode, No clip, ...) only to that player;
