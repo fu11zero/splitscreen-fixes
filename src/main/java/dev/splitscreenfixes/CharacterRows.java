@@ -226,6 +226,27 @@ public final class CharacterRows {
         return db == null ? null : db.networkProfile;
     }
 
+    // setPlayerJoypad puts the joining player in IsoPlayer.players before the server has
+    // answered, and AddCoopPlayer.accessDenied leaves it there. That player never gets player
+    // data, so every gamepad press and UI update for the slot fails, and the slot stays taken.
+    @LuaMethod(name = "SplitscreenFixes_clearFailedSlot", global = true)
+    public static void clearFailedSlot(int slot) {
+        if (!isRow(slot) || IsoPlayer.players[slot] == null) {
+            return;
+        }
+        IsoPlayer.players[slot].setJoypadBind(-1);
+        IsoPlayer.players[slot] = null;
+        // One past the last taken slot, so a gap can't hide a later player from numPlayers loops.
+        int count = 1;
+        for (int i = FIRST_ROW; i < ROWS; i++) {
+            if (IsoPlayer.players[i] != null) {
+                count = i + 1;
+            }
+        }
+        IsoPlayer.numPlayers = count;
+        Log.info("cleared slot " + slot + " after a refused join");
+    }
+
     // IsoPlayer.isSaveFileInUse compares sqlId and saveFileName, which network characters don't
     // have, so a character already in play stays in the join list and could be added twice.
     // A row's character is in play when its slot is taken.

@@ -246,6 +246,16 @@ global `SplitscreenFixes_setOption` (`Options.java`).
     with a message; joining in order works as in vanilla. Row 0 (main character) never moves.
     Saves already damaged by this bug are not repaired.
 
+- **A refused splitscreen join can be retried** (`CharacterRows.clearFailedSlot`,
+  `lua/client/SplitscreenFixes/CharacterRows.lua`; client side).
+  - Vanilla: the server refuses a name in use anywhere (`ConnectCoopPacket`), and saved
+    characters often share one stored name. `setPlayerJoypad` has already put the player in
+    `IsoPlayer.players`, and `AddCoopPlayer.accessDenied` leaves it there, with `joypadData.player`
+    set. The player has no player data, so every gamepad press fails in Lua and the slot stays taken.
+    `JoypadState.onCoopJoinFailed` stops on its own `error "joypadData.player ~= nil"`.
+  - Patch: on refusal the slot and the gamepad are cleared, and A opens the join list again. A name
+    used on this client is rejected before joining. Only the server knows names on other clients.
+
 - **Cheats for every splitscreen player** (`Cheats.lua`; client side, debug mode or admin).
   - Vanilla: the Cheats panel (`ISAdminPowerUI`) binds to `getPlayer()` when it opens and
     "Save" applies the ticks (Invisible, God mode, No clip, ...) only to that player;

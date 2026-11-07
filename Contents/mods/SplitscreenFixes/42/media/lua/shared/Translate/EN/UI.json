@@ -15,5 +15,7 @@
     "UI_SplitscreenFixes_dialogs_tooltip": "Confirmation dialogs open in the middle of their player's screen. The gamepad answers them either way.",
     "UI_SplitscreenFixes_ownClocks": "Own clock per player",
     "UI_SplitscreenFixes_ownClocks_tooltip": "Each player with a watch has a clock with their own temperature and alarm in the corner of their screen. Off: one clock in the middle, as in vanilla.",
-    "UI_SplitscreenFixes_rowSwapFailed": "Could not choose this character: the server needs Splitscreen Fixes with ZombieBuddy. Choose the first character in the list."
+    "UI_SplitscreenFixes_rowSwapFailed": "Could not choose this character: the server needs Splitscreen Fixes with ZombieBuddy. Choose the first character in the list.",
+    "UI_SplitscreenFixes_nameTaken": "This name is already used by another player. Enter a different one.",
+    "UI_SplitscreenFixes_joinRefused": "The server refused this player, the name may be taken. Press A and try another name."
 }

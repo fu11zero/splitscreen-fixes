@@ -15,5 +15,7 @@
     "UI_SplitscreenFixes_dialogs_tooltip": "Окна подтверждения открываются по центру экрана своего игрока. Ответить геймпадом можно в любом случае.",
     "UI_SplitscreenFixes_ownClocks": "Свои часы у каждого игрока",
     "UI_SplitscreenFixes_ownClocks_tooltip": "У каждого игрока с часами свои часы, температура и будильник в углу его экрана. Выкл.: одни часы посередине, как в ванилле.",
-    "UI_SplitscreenFixes_rowSwapFailed": "Не удалось выбрать этого персонажа: на сервере нужен Splitscreen Fixes с ZombieBuddy. Выберите первого персонажа в списке."
+    "UI_SplitscreenFixes_rowSwapFailed": "Не удалось выбрать этого персонажа: на сервере нужен Splitscreen Fixes с ZombieBuddy. Выберите первого персонажа в списке.",
+    "UI_SplitscreenFixes_nameTaken": "Это имя уже занято другим игроком. Введите другое.",
+    "UI_SplitscreenFixes_joinRefused": "Сервер не пустил игрока, возможно, имя занято. Нажмите A и попробуйте другое имя."
 }

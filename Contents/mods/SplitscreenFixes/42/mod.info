@@ -1,6 +1,6 @@
 name=Splitscreen Fixes
 id=SplitscreenFixes
-description=Splitscreen fixes: stuck item transfers and cars on a server, firearm aiming, own world map, clock, crafting window and flier window per player, mechanics window, moodles, search mode circle, view cone, cheats for every player, saved characters in any order, context menus and confirmation dialogs kept on the player's screen. Layout changes can be turned off in Settings > Mods.
+description=Splitscreen fixes: stuck item transfers and cars on a server, firearm aiming, own world map, clock, crafting window and flier window per player, mechanics window, moodles, search mode circle, view cone, cheats for every player, saved characters in any order, retry after a refused join, context menus and confirmation dialogs kept on the player's screen. Layout changes can be turned off in Settings > Mods.
 author=fullzero
 url=https://github.com/fu11zero/splitscreen-fixes
 category=misc

@@ -5,6 +5,10 @@ change notes when the mod is updated. Keep it in English, short, one line per ch
 
 ## Unreleased
 
+- Fixed: on a server, a splitscreen player refused by the server (for example the name is taken)
+  no longer floods the log with errors and locks the gamepad; press A to try again.
+- Added: a splitscreen name already used on this PC is rejected right in the name box.
+
 ## Update: 7 Nov @ 5:29pm
 
 - Fixed: on a server, a saved splitscreen character chosen out of order (the third one as the
