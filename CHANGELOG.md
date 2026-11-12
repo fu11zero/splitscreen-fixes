@@ -5,6 +5,8 @@ change notes when the mod is updated. Keep it in English, short, one line per ch
 
 ## Unreleased
 
+## Update: 12 Nov @ 10:25am
+
 - Fixed: "invalid signature" in ZombieBuddy, the Java part blocked: the signature is removed again, ZombieBuddy asks to approve the mod as before.
 
 ## Update: 12 Nov @ 5:00am
