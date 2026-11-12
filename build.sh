@@ -8,9 +8,10 @@ PZ_DIR="${PZ_DIR:-/mnt/data/SteamLibrary/steamapps/common/ProjectZomboid/project
 JDK="${JDK:-/usr/lib/jvm/java-25-openjdk}"
 # ZombieBuddy ZBS signature (doc/ModSigning.md): Ed25519 key + SteamID64 of the Workshop uploader.
 # Public key is published as JavaModZBS:<hex> in the Steam profile summary.
-# The key is in ZB's authors.json (zed-0xff/ZombieBuddy#118, synced from GitHub), so ZB does not need the
-# Steam profile (fetch failures there made the jar "invalid" and blocked). ZBS_SIGN=0 ./build.sh for unsigned.
-ZBS_SIGN="${ZBS_SIGN:-1}"
+# Off by default: a signature ZB can't confirm blocks the jar with no way to approve it, while an
+# unsigned jar just gets the approval dialog. Players still got "invalid signature" with the key in
+# ZB's authors.json (zed-0xff/ZombieBuddy#118), 2026-11-12. ZBS_SIGN=1 ./build.sh to sign.
+ZBS_SIGN="${ZBS_SIGN:-0}"
 ZBS_KEY="${ZBS_KEY:-$HOME/.ssh/zbs-ed25519.pem}"
 ZBS_STEAMID="${ZBS_STEAMID:-76561198084489589}"
 OUT=Contents/mods/SplitscreenFixes/42/media/java/SplitscreenFixes.jar
