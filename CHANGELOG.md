@@ -5,6 +5,8 @@ change notes when the mod is updated. Keep it in English, short, one line per ch
 
 ## Unreleased
 
+- Changed: the Java part is signed by the author (ZombieBuddy shows "FullZero"; trust the author once and mod updates no longer ask for approval).
+
 ## Update: 7 Nov @ 6:10pm
 
 - Fixed: on a server, a splitscreen player refused by the server (for example the name is taken)
