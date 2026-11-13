@@ -9,7 +9,7 @@ Source: <https://github.com/fu11zero/splitscreen-fixes>
 
 Settings > Mods > Splitscreen Fixes (`PZAPI.ModOptions`, `lua/client/SplitscreenFixes/Options.lua`,
 saved in `~/Zomboid/Lua/ModOptions.ini`). Features that change how vanilla lays out the
-splitscreen UI have a tick box (all on by default): someone on a small monitor may prefer
+splitscreen UI have a tick box (on by default, except `spanMonitors`): someone on a small monitor may prefer
 vanilla's shared map or centred windows. Bug fixes have no option. Each check runs when the
 feature acts, so a change applies without reloading the save (to windows opened after it).
 `SplitscreenFixes.isEnabled(id)` in Lua; the Java clock patch gets the value through the
@@ -24,6 +24,7 @@ global `SplitscreenFixes_setOption` (`Options.java`).
 | `contextMenus`    | context menus on the player's screen        |
 | `dialogs`         | dialogs centred on the player's screen      |
 | `ownClocks`       | own clock per player                        |
+| `spanMonitors`    | one player per monitor (off by default)     |
 
 ## Features
 
@@ -212,10 +213,18 @@ global `SplitscreenFixes_setOption` (`Options.java`).
   - Vanilla: the overlay is drawn by `media/shaders/screen.frag` when `MultiTextureFBO2.render`
     puts each player's view on the screen with the weather shader. The circle is found from
     `gl_FragCoord` minus `SearchMode.zw`, which `WeatherShader.startMainThread` sets to
-    `IsoCamera.getOffscreenLeft/Top(player)`. Only player 0 (offset 0, 0) gets the circle around
-    the character; for the others it lands off their screen and the whole screen goes dark.
-    The drunk and glasses blur circles use the same offsets.
-  - Patch (splitscreen): after `startMainThread` the offset is 0, 0 for every player.
+    `IsoCamera.getOffscreenLeft/Top(player)`. That pass runs with `glDoStartFrame(width, height, 1, -1)`:
+    player -1 sets an ortho projection over the window but leaves the viewport from the previous
+    pass, so the player's screen does not start at that offset in `gl_FragCoord` (Top is also
+    counted from the top, `gl_FragCoord.y` from the bottom). Only player 0 reliably gets the circle;
+    for the others it lands off their screen and the whole screen goes dark. The drunk and glasses
+    blur circles use the same offsets.
+  - Patch (splitscreen): `startMainThread` stores the player's screen measured from the window's
+    bottom-left; after `WeatherShader.startRenderThread` the render thread reads the actual viewport,
+    maps that point to `gl_FragCoord` and uploads `SearchMode.zw` again
+    (`Patches.SearchModeOffsetRender`). The first 20 distinct results are logged
+    (`search mode: viewport ...`). An earlier constant offset 0, 0 was right only for one viewport
+    state.
 
 - **View cone for every splitscreen player** (`Patches.ViewConeShader`, `ViewCone`; client side).
   - Vanilla: `VisibilityPolygon2$Drawer.renderToScreen` draws the cone with
@@ -226,6 +235,11 @@ global `SplitscreenFixes_setOption` (`Options.java`).
     the polygon texture and there is no cone.
   - Patch: after `ShaderUnit.loadShaderFile` reads `visibilityBlur.frag`, `displayOrigin` is
     subtracted for the samples too (no-op with one player, offset 0, 0). Same shader in 42.22.
+  - The depth lookup `screenUV = (gl_FragCoord - displayOrigin) / displaySize` gets
+    `displaySize` from the offscreen texture split like the window (`osWidth / 2`), which equals
+    the player's screen × `texSize / TextureSize` only for vanilla's halves/quarters. With one
+    player per monitor of different sizes the shadows shifted; the shader computes it from
+    `screenSize` (same value for vanilla layouts).
 
 - **Saved splitscreen characters can join in any order** (`CharacterRows`,
   `lua/*/SplitscreenFixes/CharacterRows.lua`; server and client).
@@ -276,6 +290,60 @@ global `SplitscreenFixes_setOption` (`Options.java`).
     signed jar of a trusted author in memory only and only under `prompt`, so after every
     update the server silently skipped this mod. Now trusted and remembered jars load without
     a dialog; a new jar shows ZombieBuddy's dialog while the host starts, denied after 30 s.
+
+- **One player per monitor** (option `spanMonitors`, off by default; `MultiMonitor.java`,
+  `Patches.Monitor*`).
+  - Vanilla: one GLFW window for everyone, split by the window size only (2 players:
+    left/right halves, 3-4: 2x2). Borderless covers only the primary monitor
+    (`Core.setDisplayModeInternal`).
+  - Patch: with 2+ local players in game and the pause menu closed (`GameWindow.logic` checks
+    every frame, also while paused: `GameStateMachine.update` is skipped then; the menu state is
+    read from Lua tables, `MainScreen.instance`) the window leaves fullscreen, loses its frame
+    (`GLFW_DECORATED`), gets a fixed size and is moved over the bounding box of all monitors
+    (`glfwGetMonitors`). The game follows the size itself (`GameWindow` →
+    `Core.setScreenSize`). The layout is the part of each monitor the window actually covers
+    (`Display.getX/Y` + `Core.width/height`), monitors in reading order (rows by overlapping
+    height, then left to right), players in order; with more players than monitors the first
+    monitors are split as vanilla splits the window. A window that settles off the target for
+    1.5 s (dragged, or kept by the window manager) is moved back once per position. A change of
+    the wanted state acts after 10 frames and is logged with its reason. The pause menu is read
+    from Lua tables in Java every frame (`MainScreen.instance.inGame` and its `javaObject`
+    visible): while it is up the Lua events (`OnPreUIDraw`, `OnTickEvenPaused`) stop. Monitors are looked up
+    again every 2 s (a resolution or scale change fires no GLFW monitor callback) and the window
+    follows them. Vanilla re-places UI that follows `getPlayerScreen*` only on
+    `OnResolutionChange`, fired by `Core.setScreenSize` before the new layout exists and never
+    for a move: the mod fires it again 5 frames after the layout settles. With one
+    player, in the pause menu (laid out against the whole window and scaled by width / 1920,
+    its items end up off screen) or with the option off the window goes back through
+    `Core.setDisplayMode` to the size/fullscreen/borderless from the options.
+  - Vanilla code that splits the window by itself: `IsoCamera.getScreen*`,
+    `getOffscreenLeft/Top`; `Core.DoStartFrameStuffInternal` (viewport, scissor and
+    projection of the player's part of the offscreen buffer: `w / 2`, `x = w * (player % 2)`;
+    redone in OnExit with the player's rectangle, the projection on top of
+    `projectionMatrixStack` rewritten); `Core.DoStartFrameNoZoom` (the chunk texture pass of
+    `FBORenderChunkManager.endFrame`: with the debug option `CombinedFBO` off, the default, it
+    halves w/h the same way); `WorldItemAtlas.RenderJob.restoreScreenStencil`
+    (scissor); `UIManager.resize` (moodle columns, speed controls).
+  - Side effects handled: `MultiTextureFBO2.getDisplayZoom` scales the zoom by
+    `initialWidth / width`, so `Core.initialWidth/Height` follow the span; vanilla
+    `setDisplayModeInternal` while spanned only records a real change of the mode to restore
+    (applying any option re-applies the current, spanned size); `Core.saveOptions` writes the
+    restore size. Windows: the window is topmost while focused (`GLFW_FLOATING`), otherwise the
+    taskbars of the other monitors stay over it.
+  - Not handled: different refresh rates (one swap interval for the window); different DPI
+    (UI scale is global). Linux/Hyprland: the game runs on XWayland, a monitor with scale 2 is
+    seen as half its resolution and upscaled (blurry); `xwayland { force_zero_scaling = true }`
+    gives the real resolution. Bars (waybar, layer `top`) are drawn over floating windows.
+    Lua windows centred on `getCore():getScreenWidth()` open on the seam; the paused message
+    is at the top centre of the window; mouse picking assumes player 0 at the window's
+    top-left corner.
+- **Mouse player's inventory stays on their screen** (`MouseInventory.lua`).
+  - Vanilla places the keyboard/mouse player's inventory and loot windows once, when they are
+    created, against the whole window if the player was alone then
+    (`ISPlayerDataObject:createInventoryInterface`); `onResolutionChange` moves only gamepad
+    players' windows. After a second player joins, the loot window sits on their screen.
+  - Patch: every 30 frames, when the centre of either window is outside player 0's screen,
+    `revertToKeyboardAndMouse` places both inside it.
 
 ## Setup
 

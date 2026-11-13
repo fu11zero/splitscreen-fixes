@@ -3,6 +3,8 @@ package dev.splitscreenfixes;
 import me.zed_0xff.zombie_buddy.Patch;
 import zombie.CombatManager;
 import zombie.characters.IsoPlayer;
+import zombie.core.Core;
+import zombie.iso.weather.WeatherShader;
 import zombie.core.network.ByteBufferReader;
 import zombie.core.textures.TextureDraw;
 import zombie.core.raknet.UdpConnection;
@@ -128,6 +130,7 @@ public final class Patches {
     public static class ClockLayout {
         @Patch.OnExit
         public static void exit() {
+            MultiMonitor.afterUiResize();
             PlayerClocks.afterUiResize();
         }
     }
@@ -157,6 +160,14 @@ public final class Patches {
         }
     }
 
+    @Patch(className = "zombie.iso.weather.WeatherShader", methodName = "startRenderThread")
+    public static class SearchModeOffsetRender {
+        @Patch.OnExit
+        public static void exit(@Patch.This WeatherShader shader, @Patch.Argument(0) TextureDraw texd) {
+            SearchModeOverlay.afterStartRenderThread(shader, texd);
+        }
+    }
+
     // Client: view cone for every splitscreen player (see ViewCone).
     @Patch(className = "zombie.core.opengl.ShaderUnit", methodName = "loadShaderFile")
     public static class ViewConeShader {
@@ -164,6 +175,119 @@ public final class Patches {
         public static void exit(@Patch.Argument(0) String fileName,
                                 @Patch.Return(readOnly = false) String code) {
             code = ViewCone.afterLoadShaderFile(fileName, code);
+        }
+    }
+
+    // Client: one player per monitor (option spanMonitors, see MultiMonitor). GameWindow.logic runs
+    // every frame; GameStateMachine.update is skipped while the game is paused (the pause menu sets
+    // the game speed to 0), so the menu could never un-span the window from there.
+    @Patch(className = "zombie.GameWindow", methodName = "logic")
+    public static class MonitorSpanUpdate {
+        @Patch.OnExit
+        public static void exit() {
+            MultiMonitor.update();
+        }
+    }
+
+    @Patch(className = "zombie.iso.IsoCamera", methodName = "getScreenLeft")
+    public static class MonitorScreenLeft {
+        @Patch.OnExit
+        public static void exit(@Patch.Argument(0) int player, @Patch.Return(readOnly = false) int value) {
+            value = MultiMonitor.rect(player, 0, value);
+        }
+    }
+
+    @Patch(className = "zombie.iso.IsoCamera", methodName = "getScreenTop")
+    public static class MonitorScreenTop {
+        @Patch.OnExit
+        public static void exit(@Patch.Argument(0) int player, @Patch.Return(readOnly = false) int value) {
+            value = MultiMonitor.rect(player, 1, value);
+        }
+    }
+
+    @Patch(className = "zombie.iso.IsoCamera", methodName = "getScreenWidth")
+    public static class MonitorScreenWidth {
+        @Patch.OnExit
+        public static void exit(@Patch.Argument(0) int player, @Patch.Return(readOnly = false) int value) {
+            value = MultiMonitor.rect(player, 2, value);
+        }
+    }
+
+    @Patch(className = "zombie.iso.IsoCamera", methodName = "getScreenHeight")
+    public static class MonitorScreenHeight {
+        @Patch.OnExit
+        public static void exit(@Patch.Argument(0) int player, @Patch.Return(readOnly = false) int value) {
+            value = MultiMonitor.rect(player, 3, value);
+        }
+    }
+
+    // The world is drawn into the offscreen buffer at the same place as on the screen.
+    @Patch(className = "zombie.iso.IsoCamera", methodName = "getOffscreenLeft")
+    public static class MonitorOffscreenLeft {
+        @Patch.OnExit
+        public static void exit(@Patch.Argument(0) int player, @Patch.Return(readOnly = false) int value) {
+            value = MultiMonitor.rect(player, 0, value);
+        }
+    }
+
+    @Patch(className = "zombie.iso.IsoCamera", methodName = "getOffscreenTop")
+    public static class MonitorOffscreenTop {
+        @Patch.OnExit
+        public static void exit(@Patch.Argument(0) int player, @Patch.Return(readOnly = false) int value) {
+            value = MultiMonitor.rect(player, 1, value);
+        }
+    }
+
+    @Patch(className = "zombie.core.Core", methodName = "DoStartFrameStuffInternal")
+    public static class MonitorViewport {
+        @Patch.OnExit
+        public static void exit(@Patch.This Core core,
+                                @Patch.Argument(0) int w, @Patch.Argument(1) int h,
+                                @Patch.Argument(2) float zoom, @Patch.Argument(3) int player,
+                                @Patch.Argument(4) boolean textFrame, @Patch.Argument(5) boolean fx,
+                                @Patch.Argument(6) boolean smartTexture) {
+            MultiMonitor.afterStartFrame(core, w, h, zoom, player, textFrame, fx, smartTexture);
+        }
+    }
+
+    @Patch(className = "zombie.core.Core", methodName = "DoStartFrameNoZoom")
+    public static class MonitorChunkViewport {
+        @Patch.OnExit
+        public static void exit(@Patch.This Core core,
+                                @Patch.Argument(0) int w, @Patch.Argument(1) int h,
+                                @Patch.Argument(3) int player, @Patch.Argument(5) boolean fx,
+                                @Patch.Argument(6) boolean smartTexture) {
+            MultiMonitor.afterStartFrameNoZoom(core, w, h, player, fx, smartTexture);
+        }
+    }
+
+    @Patch(className = "zombie.core.skinnedmodel.model.WorldItemAtlas$RenderJob", methodName = "restoreScreenStencil")
+    public static class MonitorItemAtlasScissor {
+        @Patch.OnExit
+        public static void exit() {
+            MultiMonitor.afterRestoreScreenStencil();
+        }
+    }
+
+    @Patch(className = "zombie.core.Core", methodName = "setDisplayModeInternal")
+    public static class MonitorKeepSpan {
+        @Patch.OnEnter(skipOn = true)
+        public static boolean enter(@Patch.Argument(0) int width, @Patch.Argument(1) int height,
+                                    @Patch.Argument(2) boolean fullscreen) {
+            return MultiMonitor.beforeSetDisplayMode(width, height, fullscreen);
+        }
+    }
+
+    @Patch(className = "zombie.core.Core", methodName = "saveOptions")
+    public static class MonitorSaveResolution {
+        @Patch.OnEnter
+        public static void enter() {
+            MultiMonitor.beforeSaveOptions();
+        }
+
+        @Patch.OnExit(onThrowable = Throwable.class)
+        public static void exit() {
+            MultiMonitor.afterSaveOptions();
         }
     }
 

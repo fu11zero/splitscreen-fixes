@@ -7,6 +7,8 @@ import se.krka.kahlua.integration.annotations.LuaMethod;
 // until then every feature is on.
 public final class Options {
     public static volatile boolean ownClocks = true;
+    // Off until Lua says otherwise: it changes the window.
+    public static volatile boolean spanMonitors = false;
 
     private Options() {}
 
@@ -17,6 +19,11 @@ public final class Options {
                 Log.info("option " + id + " = " + value);
             }
             ownClocks = value;
+        } else if ("spanMonitors".equals(id)) {
+            if (spanMonitors != value) {
+                Log.info("option " + id + " = " + value);
+            }
+            spanMonitors = value;
         }
     }
 }

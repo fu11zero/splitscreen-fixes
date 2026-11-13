@@ -19,20 +19,28 @@ local FEATURES = {
     "contextMenus",
     "dialogs",
     "ownClocks",
+    "spanMonitors",
+}
+-- Off by default: changes the game window.
+local OFF_BY_DEFAULT = {
+    spanMonitors = true,
 }
 
 local options = PZAPI.ModOptions:create(MOD_ID, "UI_SplitscreenFixes_Options")
 options:addDescription("UI_SplitscreenFixes_Options_desc")
 for _, id in ipairs(FEATURES) do
-    options:addTickBox(id, "UI_SplitscreenFixes_" .. id, true, "UI_SplitscreenFixes_" .. id .. "_tooltip")
+    options:addTickBox(id, "UI_SplitscreenFixes_" .. id, not OFF_BY_DEFAULT[id], "UI_SplitscreenFixes_" .. id .. "_tooltip")
 end
 
 function SplitscreenFixes.isEnabled(id)
     local option = options:getOption(id)
-    return option == nil or option:getValue() ~= false
+    if option == nil then
+        return not OFF_BY_DEFAULT[id]
+    end
+    return option:getValue() ~= false
 end
 
--- The Java side (per-player clocks) keeps its own copy; the global comes from Options.java.
+-- The Java side (per-player clocks, monitor span) keeps its own copy; the global comes from Options.java.
 local function pushToJava()
     if not SplitscreenFixes_setOption then return end
     for _, id in ipairs(FEATURES) do

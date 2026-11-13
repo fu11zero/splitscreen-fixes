@@ -5,6 +5,10 @@ change notes when the mod is updated. Keep it in English, short, one line per ch
 
 ## Unreleased
 
+- Fixed: search mode (foraging) showed no circle for the second splitscreen player, only blur and darkness over the whole screen.
+- Added: one player per monitor (Settings > Mods, off by default): with two or more players the borderless game window covers all monitors and each player plays on their own.
+- Fixed: the keyboard and mouse player's inventory and loot windows stayed on another player's screen after they joined.
+
 ## Update: 12 Nov @ 10:25am
 
 - Fixed: "invalid signature" in ZombieBuddy, the Java part blocked: the signature is removed again, ZombieBuddy asks to approve the mod as before.
