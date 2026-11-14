@@ -366,8 +366,11 @@ local function withOwnMapAsGlobal(playerNum, fn, ...)
     if playerNum then
         ISWorldMap_instance = getMap(playerNum) -- nil if this player never opened a map
     end
-    local a, b = fn(...)
+    -- Restore even if vanilla throws: a leaked swap would leave the global pointing at another
+    -- player's map (or nil) for good, since the next call saves the swapped value.
+    local ok, a, b = pcall(fn, ...)
     ISWorldMap_instance = saved
+    if not ok then error(a, 0) end
     return a, b
 end
 
@@ -377,7 +380,11 @@ ISWorldObjectContextMenu.createMenu = function(player, ...)
 end
 
 local vanillaCanOpen = ISEntityUI.CanOpenWindowFor
-function ISEntityUI.CanOpenWindowFor(player, ...)
+function ISEntityUI.CanOpenWindowFor(player, entity, ...)
+    -- Vanilla reads entity:getSprite():getName() unguarded; an object without a sprite next to
+    -- a gamepad player threw every frame from ISButtonPrompt:testInteractButtonAction and
+    -- killed the rest of that player's prompts.
+    if entity and not entity:getSprite() then return false end
     local playerNum = player and player.getPlayerNum and player:getPlayerNum()
-    return withOwnMapAsGlobal(playerNum, vanillaCanOpen, player, ...)
+    return withOwnMapAsGlobal(playerNum, vanillaCanOpen, player, entity, ...)
 end
