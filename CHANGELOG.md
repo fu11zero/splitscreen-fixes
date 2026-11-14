@@ -5,6 +5,10 @@ change notes when the mod is updated. Keep it in English, short, one line per ch
 
 ## Unreleased
 
+## Update: 14 Nov @ 3:07pm
+
+- Fixed: an object without a sprite next to a gamepad player threw a Lua error every frame (`ISEntityUI.CanOpenWindowFor`) and hid that player's button prompts; such an error also left the world map pointing at the wrong player.
+
 ## Update: 13 Nov @ 11:18pm
 
 - Fixed: search mode (foraging) showed no circle for the second splitscreen player, only blur and darkness over the whole screen.
