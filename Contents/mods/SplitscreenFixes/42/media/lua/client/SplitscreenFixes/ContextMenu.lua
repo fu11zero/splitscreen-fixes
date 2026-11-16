@@ -53,6 +53,19 @@ function ISContextMenu:setY(y)
     return vanillaSetY(self, y)
 end
 
+-- ISUIElement:setWidth clamps self.x to the whole window by assigning it, past setX. An empty
+-- menu is parked at x = 100000 (prerender); when options are added to it later, addOption ->
+-- setWidth(calcWidth()) drops it to the right edge of the whole window, on another player's
+-- screen (seen in a log: player 0's menu at 1487 = 1906 - 419). Clamp again through setX.
+local vanillaSetWidth = ISContextMenu.setWidth
+function ISContextMenu:setWidth(w)
+    local result = vanillaSetWidth(self, w)
+    if playerRectOf(self) and self.x < 100000 then
+        self:setX(self.x)
+    end
+    return result
+end
+
 local vanillaCalcHeight = ISContextMenu.calcHeight
 function ISContextMenu:calcHeight()
     local _, sy, _, sh = playerRectOf(self)

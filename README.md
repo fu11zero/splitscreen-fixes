@@ -121,6 +121,9 @@ global `SplitscreenFixes_setOption` (`Options.java`).
     is blocked; in splitscreen the world keeps drawing and pause-on-map is off; death, context
     menu (`ISWorldObjectContextMenu.createMenu`) and `ISEntityUI.CanOpenWindowFor` look at the
     player's own map. `ISWorldMap_instance` stays player 0's map for vanilla code and mods.
+    The owner's `blockMovement` is set again on every `OnPlayerUpdate` while the map is open:
+    the player's own states clear it on exit (`BumpedState`, `SwipeStatePlayer`, knocked down,
+    getting up, dragging a corpse), and without pause a bump let the map reader walk and attack.
     Flier and stash map icons (`renderPrintMedia`/`renderStashMaps`, plain textures drawn from
     `prerender`) are clipped to the map with a stencil, so they don't spill onto other screens.
     Small map popups (`ISMapSymbolDialog`, `ISTextBoxMap`, map options) still clamp to the
@@ -164,6 +167,10 @@ global `SplitscreenFixes_setOption` (`Options.java`).
     that would cross its right edge opens left of its parent; a slide-in whose goal was clamped
     away ends after its 100 ms; `prerender` puts back a menu that got past the clamp and logs
     it once (`[SplitscreenFixes] context menu of player N ... outside its screen`).
+    `ISUIElement:setWidth` clamps `self.x` to the whole window by assigning it, past `setX`: a
+    menu parked at x = 100000 (empty, `prerender`) that gets options later (`addOption` ->
+    `setWidth(calcWidth())`) dropped to the window's right edge, on another player's screen;
+    `setWidth` is followed by the player's-screen clamp.
   - Option `contextMenus`.
 
 - **Any player's window opens on that player's screen** (`lua/client/SplitscreenFixes/PlayerWindows.lua`;
@@ -253,6 +260,19 @@ global `SplitscreenFixes_setOption` (`Options.java`).
     the player's screen × `texSize / TextureSize` only for vanilla's halves/quarters. With one
     player per monitor of different sizes the shadows shifted; the shader computes it from
     `screenSize` (same value for vanilla layouts).
+
+- **Trees see-through around every splitscreen player** (`Patches.TreeStencilClear`,
+  `TreeStencilMask`; client side).
+  - Vanilla: `IsoCell.drawStencilMask` clears depth and stencil, then stamps
+    `media/mask_transparency_player.png` (and the cursor mask while aiming) into stencil bit 128;
+    trees in it are drawn dithered (`FBORenderTrees.renderTree`). The stamp ends with
+    `glStencilMask(127)`, and `glClear` clears only the bits the write mask allows. Player 0's
+    clear comes after the UI frame (`Core.StartFrameUI` sets the mask to 255), player 1's right
+    after player 0's stamp, so bit 128 on player 1's part of the offscreen buffer is never
+    cleared (the UI clears its own FBO). The stamps pile up into a hole over the whole screen:
+    the circle looks twice as big and torn, then gone, and the see-through dots are lost
+    (stencil readback: player 0 ~234k px, player 1 700k-900k of 993k).
+  - Patch (2+ players): `glStencilMask(255)` before the stamp, so every player's clear covers bit 128.
 
 - **Saved splitscreen characters can join in any order** (`CharacterRows`,
   `lua/*/SplitscreenFixes/CharacterRows.lua`; server and client).
@@ -396,6 +416,12 @@ branches, `tools/snapshot.sh` saves the vanilla code of the installed version fo
   transaction with the same id. Rare and not splitscreen-specific. Fixed in 42.22
   (`removeItemTransaction(id, connection)` checks the connection).
 - `WorldSimulation` checks car-to-car collisions only for `IsoPlayer.getPlayerIndex()`'s car.
+- World map street name plate for players 1+: `UIWorldMap.renderStreetLabel` passes the map's
+  local coordinates to `SpriteRenderer` (window coordinates), so the plate behind the name is
+  drawn off by the map's position; the name itself is right. Needs a Java patch, not done.
+- Wind Sway (Workshop 3782670683) replaces tree drawing (`FBORenderTrees.render`) and reads main
+  thread state on the render thread (`IsoCamera.frameState`, `IsoCell.getStencilAreas`), so its
+  see-through circle is missing for players 1+. Its bug; with it off the vanilla circle works.
 
 ## Layout
 

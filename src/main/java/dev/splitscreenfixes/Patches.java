@@ -302,4 +302,13 @@ public final class Patches {
         }
         return false;
     }
+
+    // Client: see-through circle in trees for every splitscreen player (see TreeStencilMask).
+    @Patch(className = "zombie.iso.IsoCell", methodName = "drawStencilMask")
+    public static class TreeStencilClear {
+        @Patch.OnEnter
+        public static void enter() {
+            TreeStencilMask.beforeDrawStencilMask();
+        }
+    }
 }

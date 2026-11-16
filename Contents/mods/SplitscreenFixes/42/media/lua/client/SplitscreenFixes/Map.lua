@@ -388,3 +388,23 @@ function ISEntityUI.CanOpenWindowFor(player, entity, ...)
     local playerNum = player and player.getPlayerNum and player:getPlayerNum()
     return withOwnMapAsGlobal(playerNum, vanillaCanOpen, player, entity, ...)
 end
+
+-- The map holds its player only through IsoPlayer.blockMovement (ShowWorldMap), and the
+-- player's own states clear that flag unconditionally on exit: BumpedState (pushed by a zombie
+-- or another player, tripping), SwipeStatePlayer (end of an attack or shove),
+-- PlayerDraggingCorpse, PlayerKnockedDown, PlayerOnGroundState, PlayerGetUpState. In vanilla
+-- the map pauses the game (getOptionMapViewPause), so nothing can bump the reader; in
+-- splitscreen the game runs (ISWorldMap.shouldPause), and after such a state the player with the
+-- map open walks with the stick that pans the map, attacks with RT that zooms it, or drives.
+-- Set the flag again every update while the player's map is open. OnPlayerUpdate fires in
+-- IsoPlayer.updateInternal2 before movement, use key and attack input are read; the states
+-- run later in the same update (IsoGameCharacter.update), so the flag is back by the next read.
+local function keepMapReaderBlocked(player)
+    if not (enabled() and player and player:isLocalPlayer()) then return end
+    local map = getMap(player:getPlayerNum())
+    if map and map:isVisible() and map.character == player and not player:isBlockMovement() then
+        player:setBlockMovement(true)
+    end
+end
+
+Events.OnPlayerUpdate.Add(keepMapReaderBlocked)
