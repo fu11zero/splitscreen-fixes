@@ -5,6 +5,8 @@ change notes when the mod is updated. Keep it in English, short, one line per ch
 
 ## Unreleased
 
+## Update: 16 Nov @ 11:40pm
+
 - Fixed: the inspect clothing / sewing window opened across the seam for the lower splitscreen players; any player's window that opens off that player's screen is now moved onto it (option "Windows on the player's screen").
 - Fixed: trees around the second splitscreen player were not see-through: the circle around the character (and at the aiming cursor) was oversized and torn, then covered the whole screen without the see-through dots.
 - Fixed: a context menu could open on the right edge of the window, on another player's screen, when its options were added after it opened.
