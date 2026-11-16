@@ -11,6 +11,8 @@
     "UI_SplitscreenFixes_mechanicsWindow_tooltip": "Окно механики машины открывается на экране своего игрока и ужимается по нему. Выкл.: по центру всего окна.",
     "UI_SplitscreenFixes_contextMenus": "Контекстные меню на экране игрока",
     "UI_SplitscreenFixes_contextMenus_tooltip": "Контекстные меню и подменю не вылезают за экран своего игрока и прокручиваются, если не помещаются.",
+    "UI_SplitscreenFixes_playerWindows": "Окна на экране игрока",
+    "UI_SplitscreenFixes_playerWindows_tooltip": "Окно игрока (осмотр одежды и шитьё и другие), открывшееся не целиком на его экране, переносится в центр этого экрана. Выкл.: где поставит игра.",
     "UI_SplitscreenFixes_dialogs": "Диалоги на экране игрока",
     "UI_SplitscreenFixes_dialogs_tooltip": "Окна подтверждения открываются по центру экрана своего игрока. Ответить геймпадом можно в любом случае.",
     "UI_SplitscreenFixes_ownClocks": "Свои часы у каждого игрока",

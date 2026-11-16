@@ -5,6 +5,8 @@ change notes when the mod is updated. Keep it in English, short, one line per ch
 
 ## Unreleased
 
+- Fixed: the inspect clothing / sewing window opened across the seam for the lower splitscreen players; any player's window that opens off that player's screen is now moved onto it (option "Windows on the player's screen").
+
 ## Update: 14 Nov @ 3:07pm
 
 - Fixed: an object without a sprite next to a gamepad player threw a Lua error every frame (`ISEntityUI.CanOpenWindowFor`) and hid that player's button prompts; such an error also left the world map pointing at the wrong player.

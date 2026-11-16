@@ -166,6 +166,19 @@ global `SplitscreenFixes_setOption` (`Options.java`).
     it once (`[SplitscreenFixes] context menu of player N ... outside its screen`).
   - Option `contextMenus`.
 
+- **Any player's window opens on that player's screen** (`lua/client/SplitscreenFixes/PlayerWindows.lua`;
+  client side).
+  - Vanilla: many per-player windows are placed against the whole window or at fixed
+    coordinates. `ISInventoryPaneContextMenu.onInspectClothingUI` opens the inspect clothing /
+    sewing window as `ISGarmentUI:new(-1, 500, ...)`: centred on the player's screen
+    horizontally, but always at y = 500, across the seam for the lower players.
+  - Patch (splitscreen): `ISUIElement:addToUIManager` checks a top-level `ISCollapsableWindow`
+    (or draggable panel) whose player is known (`playerNum`/`player`/`character`/`chr`/`playerObj`)
+    and centres it on that player's screen if it is not fully inside; checked again on the next two
+    frames, after its first layout. A window moved later is left alone. Each moved window type is
+    logged once (`[SplitscreenFixes] window <Type> of player N moved from ...`).
+  - Option `playerWindows`.
+
 - **Confirmation dialogs on their player's screen, answerable with a gamepad**
   (`lua/client/SplitscreenFixes/Dialogs.lua`; client side).
   - Vanilla: `ISModalDialog/ISModalRichText/ISTextBox:new` centre on the player's screen only

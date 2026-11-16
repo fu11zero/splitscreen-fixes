@@ -11,6 +11,8 @@
     "UI_SplitscreenFixes_mechanicsWindow_tooltip": "The vehicle mechanics window opens on its player's screen and shrinks to fit. Off: centred on the whole window.",
     "UI_SplitscreenFixes_contextMenus": "Context menus on the player's screen",
     "UI_SplitscreenFixes_contextMenus_tooltip": "Right-click menus and submenus stay on their player's screen and scroll when they don't fit.",
+    "UI_SplitscreenFixes_playerWindows": "Windows on the player's screen",
+    "UI_SplitscreenFixes_playerWindows_tooltip": "A player's window (inspect clothing and sewing, and others) that opens not fully on that player's screen is moved to the centre of it. Off: where the game puts it.",
     "UI_SplitscreenFixes_dialogs": "Dialogs on the player's screen",
     "UI_SplitscreenFixes_dialogs_tooltip": "Confirmation dialogs open in the middle of their player's screen. The gamepad answers them either way.",
     "UI_SplitscreenFixes_ownClocks": "Own clock per player",

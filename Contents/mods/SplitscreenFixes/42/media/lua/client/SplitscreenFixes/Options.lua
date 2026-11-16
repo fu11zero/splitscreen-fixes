@@ -17,6 +17,7 @@ local FEATURES = {
     "ownCrafting",
     "mechanicsWindow",
     "contextMenus",
+    "playerWindows",
     "dialogs",
     "ownClocks",
     "spanMonitors",
